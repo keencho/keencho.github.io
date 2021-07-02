@@ -3,6 +3,9 @@
 # Import the theme
 theme: jekyll-theme-chirpy
 
+# fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
+url: 'https://keencho.github.io'
+
 # Only if your site type is GitHub Project sites and doesn't have a custom domain,
 # change below value to '/projectname'.
 baseurl: ''
@@ -23,9 +26,6 @@ description: >-                        # used by seo meta and the atom feed
   A minimal, portfolio, sidebar,
   bootstrap Jekyll theme with responsive web design
   and focuses on text presentation.
-
-# fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: 'https://keencho.github.io'
 
 github:
   username: keencho             # change to your github username
