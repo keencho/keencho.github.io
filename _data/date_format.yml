@@ -3,7 +3,5 @@
 tooltip: "%F %a %H:%M"
 
 post:
-#  long: "%F"
   long: "%F %a %H:%M"
-#  short: "%F"
-  short: "%F %a %H:%M"
+  short: "%F"
