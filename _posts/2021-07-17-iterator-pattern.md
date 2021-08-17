@@ -167,7 +167,7 @@ public class Client {
 
 <br/>
 ## **일반적인 반복문과의 차이**
-위 예제를 만약 Iterator를 사용하지 않고 foreach loop를 사용하면 어떻게 될까요?  
+만약 위 예제를 Iterator를 사용하지 않고 foreach loop를 사용하면 어떻게 될까요?  
 
 ```java
     public static void main(String[] args) {
@@ -213,10 +213,10 @@ userList.removeIf(user -> "gildong".equals(user.getLoginId()));
 ```  
 
 <br/>
-### **결론**
+## **결론**
 반복자 패턴을 사용하면 구현 클래스 내부에서 어떤 식으로 일이 처리되는지 알 필요 없이(자료구조와 관계없이) 컬렉션 내부의 모든 항목에 접근할 수 있습니다. 다만 Iterator를 사용하는 경우 for loop를 사용하는 것 보다 성능이 떨어질 수 있으니 주의가 필요합니다.  
 
 <br/>
-### **참조**
+## **참조**
 > [https://refactoring.guru/design-patterns/iterator](https://refactoring.guru/design-patterns/iterator)  
 > [https://stackoverflow.com/a/22268270/13160032](https://stackoverflow.com/a/22268270/13160032)
