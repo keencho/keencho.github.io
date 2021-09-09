@@ -1,5 +1,5 @@
 ---
-title: 어댑터 패턴 (Prototype Pattern)
+title: 어댑터 패턴 (Adapter Pattern)
 author: keencho
 date: 2021-08-21 20:12:00 +0900
 categories: [Design Pattern]
