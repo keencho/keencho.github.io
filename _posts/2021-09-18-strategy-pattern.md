@@ -105,6 +105,7 @@ public static void main(String[] args) {
     pc.pay(10);
     mobile.pay(30);
 
+    // 조건을 만족하면 결제 전략을 변경한다.
     if (condition()) {
         mobile.setPayStrategy(new TossPay());
     }
@@ -113,7 +114,6 @@ public static void main(String[] args) {
 }
 
 public static boolean condition() {
-    // 조건ㅇ
     return true;
 }
 ```
