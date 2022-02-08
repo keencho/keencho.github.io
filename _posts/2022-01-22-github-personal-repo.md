@@ -9,7 +9,7 @@ tags: [Java, Github, Maven]
 # **개요**
 사이드 프로젝트를 진행하다보면 최초 세팅시 공통된 코드가 사용되는 경우가 많습니다. 하지만 이를 모듈화하여 개인 `nexus`에 배포하자니 서버 구축이 어렵고, `Maven Central`에 배포하자니 거쳐야하는 단계가 많아 어려움을 겪었었습니다.  
 
-오늘은 Github를 이용해 개인 라이브러리를 배포하는 몇가지 방법에 대해 알아보겠습니다.  
+이 포스팅 에서는 Github를 이용해 개인 라이브러리를 배포하는 몇가지 방법에 대해 알아보겠습니다.  
 
 > 라이브러리 배포에 있어서는 Maven이 Gradle 보다 용이하다고 생각되어 아래 내용은 모두 Maven을 기반으로 작성되었습니다. (저도 개인적으로는 Gradle을 선호합니다...)  
 
@@ -81,7 +81,7 @@ mvn -D altDeploymentRepository=snapshot::default::file:../maven-test-repo/snapsh
  ```
  └── D:
      └── workspace
-         └── maven-test-repo 
+         ├── maven-test-repo 
          │   ├── releases
          │   └── snapshots (배포될 디렉토리)
          └── keencho-lib-custom-p6spy (배포할 라이브러리)
@@ -91,19 +91,20 @@ mvn -D altDeploymentRepository=snapshot::default::file:../maven-test-repo/snapsh
 local 폴더에 정상적으로 배포되었다면 commit - push를 진행합니다.
 
 ### **1.3. 라이브러리를 사용할 어플리케이션에 의존성 추가**  
+
 ##### **1.3.1. 라이브러리를 사용할 어플리케이션에 repository 연결정보를 추가**  
 ```xml
-    <distributionManagement>
-        <repository>
-            <id>release</id>
-            <url>https://github.com/keencho/maven-test-repo/raw/master/releases</url>
-        </repository>
+<distributionManagement>
+    <repository>
+        <id>release</id>
+        <url>https://github.com/keencho/maven-test-repo/raw/master/releases</url>
+    </repository>
 
-        <snapshotRepository>
-            <id>snapshot</id>
-            <url>https://github.com/keencho/maven-test-repo/raw/master/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <snapshotRepository>
+        <id>snapshot</id>
+        <url>https://github.com/keencho/maven-test-repo/raw/master/snapshots</url>
+    </snapshotRepository>
+</distributionManagement>
 ```  
 
 ##### **1.3.2. 의존성 추가**  
