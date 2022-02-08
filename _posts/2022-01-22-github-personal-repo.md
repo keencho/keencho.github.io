@@ -121,7 +121,7 @@ local 폴더에 정상적으로 배포되었다면 commit - push를 진행합니
 명령어로 maven install 후 내가 만든 라이브러리가 추가되어있는지 확인합니다.
 
 ```
-mvn installc
+mvn install
 ```
 ![custom-repo-check](/assets/img/custom/github/custom-maven-repository/custom-repo-check.jpg)
 
