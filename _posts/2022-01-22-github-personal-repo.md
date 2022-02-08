@@ -121,7 +121,7 @@ local 폴더에 정상적으로 배포되었다면 commit - push를 진행합니
 명령어로 maven install 후 내가 만든 라이브러리가 추가되어있는지 확인합니다.
 
 ```
-mvn install
+mvn installc
 ```
 ![custom-repo-check](/assets/img/custom/github/custom-maven-repository/custom-repo-check.jpg)
 
@@ -212,6 +212,7 @@ mvn deploy
 
 ##### **2.2.3. Github에서 확인하기**
 Github UI 화면에서도 확인할 수 있습니다. 리포지토리의 우측 사이드바를 확인해보세요.
+
 ![github-package-1](/assets/img/custom/github/custom-maven-repository/github-package-1.png)
 ![github-package-2](/assets/img/custom/github/custom-maven-repository/github-package-2.png)
 
@@ -250,6 +251,7 @@ mvn install
 
 ##### **3.1.2. 리포지토리들 확인하기**
 좌측 사이드바에 내 리포지토리들이 잘 보이는지 확인합니다.
+
 ![jitpack-repository](/assets/img/custom/github/custom-maven-repository/jitpack-repository.png)
 
 ### **3.2. Github Release**
