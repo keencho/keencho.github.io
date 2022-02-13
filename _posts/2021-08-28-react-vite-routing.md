@@ -10,16 +10,13 @@ tags: [React, Vite]
 Next js는 리액트에서 SSR을 쉽게 구현할수 있게 도와주는 라이브러리 입니다. Next의 `파일 시스템을 기반으로한 라우팅` 을 기본으로 하고 있습니다. ([참조](https://nextjs.org/docs/routing/introduction))
 오늘은 Next 없이 Next와 같은 라우팅을 구현해보고자 합니다.
 
-<br/>
 ## **CSR로 구현하기?**
 리액트는 lazy 와 Suspense API로 동적 로딩을 지원하고 있기는 합니다. 이를 이용해 쉽게 구현할수도 있지요. 또 [이런](https://www.npmjs.com/package/react-dynamic-route) 라이브러리도 있습니다.
 하지만 결국 이는 클라이언트 사이드에서 앱이 시작될때 라우팅 규칙이 생성되기 때문에 뭔가 제 마음에 썩 들지는 않았습니다.
 
-<br/>
 ## **Vite**
 사실 이 포스팅의 목적은 폴더 구조대로 라우팅이 아닌 최근에 관심있게 지켜보고 있는 `Vite` 라는 빌드 툴에 대해 정리하고자 하는것이었습니다. 하지만 Vite의 docs를 읽어보는 도중 폴더 구조대로 라우팅하는 방법을 찾았고, 포스팅의 목적을 바꾸게 되었습니다.
 
-<br/>
 ### **Vite란?**
 일단 Vite에 대해 조금만 알아보고 넘어가도록 하겠습니다. Vite는 Vue js의 개발자인 Evan You가 개발한 빌드 툴입니다. Webpack 이나 Snowpack같은 툴이지요. (Snowpack에 더 가깝긴 합니다.) 2021년 8월 기준 깃헙 스타도 31.3k 정도로 핫한 빌드툴입니다.
 
@@ -29,7 +26,6 @@ Vite는 모던 브라우저에서 지원하는 `<script module>` 을 이용해 �
 Webpack을 대체할수 있어? 라고 물으신다면 이미 Webpack을 기반으로한 여러 라이브러리들이 많고 Vite는 IE11을 지원하지 않는등 여러 문제가 있어 아직은 시기상조라고 생각되나 추후 이 라이브러리가 더 개발된다면
 충분히 대체할수 있다고 생각합니다.
 
-<br/>
 ## **파일 시스템 기반 라우팅**
 Vite에 대해 대충 훑어봤으니 실제로 Vite를 이욯애 리액트앱을 만들고 파일 시스템 기반 라우팅을 적용해보도록 하겠습니다. 최종적인 라우팅 목표는 다음과 같습니다.
 
@@ -41,7 +37,6 @@ Vite에 대해 대충 훑어봤으니 실제로 Vite를 이욯애 리액트앱�
 - 동적 라우팅
   - src/pages/user/[id].tsx -> '/user/12', 'user/34'
 
-<br/>
 ### **시작하기**
 다음 명령어로 Vite를 이용해 리액트 - 타입스크립트 앱을 생성합니다.
 ```
@@ -52,7 +47,6 @@ npm init vite@latest react-app --template react-ts
 npm install react-router-dom @types/react-router-dom
 ```
 
-<br/>
 ### **라우팅 규칙 정의하기**
 Vite의 [glob import API](https://vitejs.dev/guide/features.html#glob-import)를 사용하여 glob 패턴으로 라우팅 규칙을 정의해보겠습니다. Vite의 glob은 fast-glob 과 일치하며
 glob에서 지원하는 규칙을 알고 싶으시면 [여기](https://github.com/mrmlnc/fast-glob#pattern-syntax) 를 확인해보세요.
@@ -98,7 +92,6 @@ export const Routes = () => {
 }
 ```
 
-<br/>
 ### **404 정의하기**
 추가적으로 라우터에 등록된 컴포넌트가 아닐 경우 404 페이지를 리턴하도록 해보겠습니다. 위 `components` 변수와 같이 `_app.tsx`와 `404.tsx`의 경로를 저장하는 변수를 정의하겠습니다.
 
@@ -134,7 +127,6 @@ export const Routes = () => {
 ```
 만약 basics 변수에 해당 컴포넌트가 없다면 리액트의 `Fragment`가 쓰이게 됩니다.
 
-<br/>
 ## **최종 코드**
 모두 완성되었습니다. 최종 코드는 다음과 같습니다.
 
@@ -215,7 +207,6 @@ ReactDOM.render(
     └── vite-env.d.tsx
 ```
 
-<br/>
 ## **결론**
 Vite 와 globEager 를 사용해 파일 시스템을 기반으로한 라우팅을 적용해보았습니다. 적용하고 나니 참 편리한것 같습니다. 이곳에서 Vite에 대해 자세히 다루지는 않았지만
 개인적으로 앞으로의 토이 프로젝트에는 Vite를 주로 사용할것 같습니다. 토이 프로젝트를 React나 Vue (Angular는 아직입니다...) 로 구성할 계획이 있으신 분들이면 한번 사용해 보시기 바랍니다.

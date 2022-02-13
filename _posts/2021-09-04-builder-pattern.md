@@ -9,7 +9,6 @@ tags: [Design Pattern, Java]
 # **빌더 패턴**
 빌더 패턴은 복합 객체의 생성 과정과 표현 방법을 분리하여 동일한 생성 절차에서 서로 다른 표현 결과를 만들수 있게 하는 패턴입니다. 객체를 생성할때 흔하게 사용됩니다.
 
-<br/>
 ## **구조**
 ![structure](/assets/img/custom/design-pattern/builder/structure.png)
 
@@ -19,7 +18,6 @@ tags: [Design Pattern, Java]
 4. Director 클래스는 개발자가 특정 Product의 구성을 생성하고 재사용할 수 있도록 생성 단계를 호출하는 순서를 지정합니다.
 5. 클라이언트 클래스는 Director 클래스와 함께 빌더 객체중 하나와 연결되어야 합니다.
 
-<br/>
 ## **적용 가능한 경우**
 1. `점층적 생성자` 를 제거하고자 하는 경우 빌더 패턴을 사용하세요.
 
@@ -64,7 +62,6 @@ public class TelescopingConstructor {
 <span>2. </span>당신의 코드를 통해 상품을 다른 표현 방식으로 만들고 싶을때 빌더 패턴을 사용해보세요.
 <span>3. </span>복잡한 클래스나 서로다른 트리들을 결합하여 객체를 생성하고자 할때 빌더 패턴을 사용해보세요.
 
-<br/>
 ## **장단점**
 #### **장점**
 1. 객체를 단계별로 구성하거나 구성 단계를 지연하거나 재귀적으로 생성할수 있습니다.
@@ -75,7 +72,6 @@ public class TelescopingConstructor {
 1. 패턴을 적용시키고자 할때 N개의 새로운 클래스르 만들어야 하므로 코드의 복잡성이 증가합니다.
 2. 생성비용 자체는 크지 않지만 성능이 중요시되는 상황이 오면 문제가 될수 있습니다.
 
-<br/>
 ## **vs Java Beans Pattern**
 빈 객체 생성후 setter 메소드를 이용한 값의 주입을 자바 빈 패턴이라고 합니다. 이는 실무에서도 자주 볼수있는 패턴입니다.
 
@@ -83,8 +79,6 @@ public class TelescopingConstructor {
 
 이런 저런 이유로 객체를 생성하는 시점에 모든 값을 주입하여 불변 객체를 생성하는 빌더 패턴이 더 객체지향적인 패턴이라고 할수 있겠습니다.
 
-
-<br/>
 ## **예제**
 사람을 빌더 패턴을 이용해 만드는 예제입니다. 필수 정보는 Builder() 생성자에 포함되어야 합니다.
 
@@ -182,11 +176,9 @@ Person{name='keencho', age='20', gender='man', job='man', birthday='null', addre
 ```
 간단한 빌더 패턴 예제입니다. 여기서는 메소드를 하나하나 만들었지만 저는 주로 롬복 라이브러리의 @Builder 어노테이션을 많이 사용하는 편입니다.
 
-<br/>
 ### **결론**
 빌더 패턴은 생성 패턴중의 하나로 자바빈 패턴의 단점을 보완하는 패턴입니다. 많이 사용되는 패턴중 하나이지만 성능에 민감한 상황이 되면 문제가 될수 있고 클래스는 시간이 갈수록 커지는 경향이 있으므로 주의하여 사용해야 합니다.
 
-<br/>
 ### **참조**
 > [https://refactoring.guru/design-patterns/builder](https://refactoring.guru/design-patterns/builder)
 

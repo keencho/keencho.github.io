@@ -9,7 +9,6 @@ tags: [Design Pattern, Java]
 # **옵저버 패턴**
 옵저버 패턴은 객체의 상태 변화를 관찰하는 관찰자들, 즉 옵저버의 목록을 객체에 등록하여 상태 변화가 있을 때마다 메스드 등을 통해 객체가 직접 목록의 각 옵저버에게 통지하도록 하는 디자인 패턴입니다.
 
-<br/>
 ## **구조**
 ![structure](/assets/img/custom/design-pattern/observer/structure.png)
 
@@ -22,12 +21,10 @@ tags: [Design Pattern, Java]
 게시자는 자기 자신을 인자로 전달하여 구독자가 필요한 데이터를 직접 가져올 수 있습니다.
 6. 클라이언트는 게시자 및 구독자 객체를 별도로 만든 후 게시자 업데이트를 위해 구독자를 등록합니다.
 
-<br/>
 ## **적용 가능한 경우**
 1. 한 객체의 상태를 변경하기 위해 다른 객체를 변경해야할 경우 혹은 실제 객체 집합을 미리 알 수 없거나 동적으로 변경되는 경우 옵저버 패턴을 사용합니다.
 2. 앱이 한정된 시간, 특정한 케이스에만 다른 객체를 관찰해야 하는 경우 옵저버 패턴을 사용합니다.
 
-<br/>
 ## **장단점**
 #### **장점**
 1. 게시자의 코드를 변경하지 않고 새로운 구독자 클래스를 만들어 작업할 수 있으므로 개방/폐쇄 원칙을 만족합니다.
@@ -37,7 +34,6 @@ tags: [Design Pattern, Java]
 1. 구독자는 랜덤으로 알림을 받습니다.
   - 우선순위를 지정하는 코드를 삽입하여 순위를 지정할수도 있겠지만, 복잡성과 결합성만 높아지기 때문에 추천하지는 않습니다.
 
-<br/>
 ## **예제**
 기본적인 형태의 게시자부터 만들어 보겠습니다.
 ```java
@@ -147,11 +143,9 @@ public class Client {
 마지막으로 클라이언트 코드입니다. 에디터를 생성하고 파일을 open 할 경우 LogOpenListener을 통해 해당 파일이 열렸다는 정보를 로그에 저장합니다.
 파일을 save할 경우 파일이 저장되었다는 정보를 미리 지정해둔 이메일(admin@example.com) 에 전송합니다.
 
-<br/>
 ### **결론**
 옵저버 패턴은 주로 gui 프로그램에서 사용되곤 합니다. 중요한점은 한 객체가 변경되었음을 다른 객체에 알려야 하는 경우 게시자(Publisher), 구독자(Observer), 알림(Notify)의 형태로 구현한다는 점입니다.
 
-<br/>
 ### **참조**
 > [https://refactoring.guru/design-patterns/observer](https://refactoring.guru/design-patterns/observer)
 > [https://refactoring.guru/design-patterns/observer/java/example](https://refactoring.guru/design-patterns/observer/java/example)
