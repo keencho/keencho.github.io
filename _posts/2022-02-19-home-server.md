@@ -54,7 +54,9 @@ OS는 [Rocky Linux](https://rockylinux.org/)로 정했다. Rocky Linux도 언젠
 다행이 putty나 xshell등 원격접속 툴을 사용할 줄 아는 사람이라면 문제가 없을듯 하다. 두 PC의 사설 IP 대역은 동일하기 때문이다.
 
 ![iptime](/assets/img/custom/homeserver/iptime.png)
+
 ![windows](/assets/img/custom/homeserver/windows.png)
+
 ![linux](/assets/img/custom/homeserver/linux.png)
 
 위 이미지와 같이 iptime 자체의 IP는 192.168.0.1, Windows의 경우 192.168.0.2, Linux의 경우 192.168.0.3을 각각 할당받고 있다. 이것이 의미하는 것은 Windows의 원격접속 툴에서 192.168.0.3 / 22 를 호스트 / 포트로 설정후 접속하면 된다는 뜻이 된다.
