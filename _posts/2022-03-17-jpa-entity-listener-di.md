@@ -98,7 +98,9 @@ public class SoccerPlayerListeners implements SimpleEventListeners {
     }
 }
 ```
-`SoccerPlayerListeners` 클래스입니다. 구현할 메소드가 없긴 하지만 위에서 정의한 인터페이스를 구현하는 클래스입니다. 모든 객체가 메모리를 공유하도록 하기 위해 static 키워드를 사용하여 변수를 선언하였습니다.
+`SoccerPlayerListeners` 클래스입니다. 구현할 메소드가 없긴 하지만 위에서 정의한 인터페이스를 구현하는 클래스입니다. 모든 객체가 메모리를 공유하도록 하기 위해 static 키워드를 사용하여 변수를 선언하였습니다.  
+
+`@PrePersist` 어노테이션을 선언해 엔티티가 flush 되기 전에 축구선수의 총원을 콘솔에 찍는 메소드를 선언하였습니다.
 
 ```java
 @Configuration
@@ -131,4 +133,4 @@ public class SimpleEventListenerConfig {
 
 여기서 `SimpleEventListeners` 인터페이스를 사용한 이유가 나옵니다. `SimpleEventListeners`를 구현하는 모든 클래스들을 변수에 할당해야하기 때문입니다. 이 방식은 `List<SimpleEventListeners>` 객체를 루프 돌면서 static 변수만 필터링하고 리플렉션을 이용해 static 변수에 값을 할당하는 방식입니다.  
 
-그리고 나서 테스트해보면 정상적으로 수행되는것을 확인하실 수 있을 것입니다. (java 17에서도 문제없이 동작합니다.)
+그리고 나서 새로운 엔티티를 flush하기 전에 정의한 prePersist 메소드가 수행되는지 테스트해보면 정상적으로 수행되는것을 확인하실 수 있을 것입니다. (java 17에서도 문제없이 동작합니다.)
