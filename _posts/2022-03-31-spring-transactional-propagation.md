@@ -240,5 +240,89 @@ public void insertNever(SoccerPlayer soccerPlayer) {
 `insertNever()`가 수행되는 시점에 활성화된 부모 트랜잭션이 있기 때문에 `org.springframework.transaction.IllegalTransactionStateException: Existing transaction found for transaction marked with propagation 'never'` Exception이 발생하며 테스트가 종료됩니다.  
 
 ### 5. NOT_SUPPORTED  
-다섯번째는 `NOT_SUPPORTED` 입니다. 활성화된 트랜잭션 유무에 상관없이 non-transactional 하게 동작합니다. 활성화된 트랜잭션이 있는 경우 트랜잭션을 일시중지 시킵니다.
+다섯번째는 `NOT_SUPPORTED` 입니다. 활성화된 트랜잭션 유무에 상관없이 non-transactional 하게 동작합니다. 활성화된 트랜잭션이 있는 경우 트랜잭션을 일시중지 시킵니다. 작업이 끝나면 자동으로 중지한 트랜잭션을 다시 시작합니다.  
+
+### 6. NESTED
+여섯번째는 `NESTED` 입니다. `NESTED`는 활성화된 트랜잭션의 **중첩** 트랜잭션을 시작합니다. 중첩 트랜잭션이 시작할 때 `SAVEPOINT`가 생성됩니다. 중첩 트랜잭션이 실패한다면 생성한 `SAVEPOINT`로 롤백합니다. (SAVEPOINT를 지원하는 DB만 사용 가능 - PostgreSQL, Oracle, MSSQL 등) 중첩 트랜잭션은 외부 트랜잭션의 일부이므로 외부 트랜잭션이 끝날 때만 커밋됩니다. 중첩 트랜잭션이 끝났다고 하여 바로 커밋되는 일은 없습니다.  
+
+```java
+@Test
+public void NESTED() {
+    transactionService.nested();
+
+    var soccerPlayerList = soccerPlayerRepository.findAll();
+
+    Assert.isTrue(soccerPlayerList.size() == 1, "size of soccer player list must be 1");
+}
+```  
+
+```java
+@Transactional
+public void nested() {
+    SoccerPlayer player1 = new SoccerPlayer();
+    player1.setName("손흥민");
+    soccerPlayerRepository.save(player1);
+
+    SoccerPlayer player2 = new SoccerPlayer();
+    player2.setName("박지성");
+    soccerPlayerRepository.save(player2);
+    transactionChildService.insertNested(player2);
+}
+```  
+
+```java
+@Transactional(propagation = Propagation.NESTED)
+public void insertNested(SoccerPlayer soccerPlayer) {
+    try {
+        soccerPlayerRepository.save(soccerPlayer);
+        throw new RuntimeException("throw error");
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+}
+```  
+
+예제 코드입니다. 박지성 이라는 이름을 가진 엔티티를 저장하는 시점에 예외가 발생하였지만 `SAVEPOINT`까지만 롤백되어 손흥민 이라는 이름을 가진 엔티티는 정상적으로 저장되게 되어 테스트를 통과하게 됩니다.  
+
+### 7. REQUIRES_NEW
+마지막 7번째는 `REQUIRES_NEW` 입니다. 아마 기본 `REQUIRED`와 함께 가장 많이 사용하게될 전파레벨이 될텐데요, `REQUIRES_NEW`는 활성화된 트랜잭션이 있다면 잠시 중지시키고 새로운 트랜잭션을 생성하여 진행합니다.  
+
+```java
+@Test
+public void REQUIRES_NEW() {
+    try {
+        transactionService.requiresNew();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+
+    var soccerPlayerList = soccerPlayerRepository.findAll();
+
+    Assert.isTrue(soccerPlayerList.size() == 1, "size of soccer player list must be 1");
+}
+```
+
+```java
+@Transactional
+public void requiresNew() {
+    SoccerPlayer player1 = new SoccerPlayer();
+    player1.setName("손흥민");
+    transactionChildService.insertRequiresNew(player1);
+
+    SoccerPlayer player2 = new SoccerPlayer();
+    player2.setName("박지성");
+    soccerPlayerRepository.save(player2);
+    throw new RuntimeException("throw error on parent");
+}
+```
+
+```java
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void insertRequiresNew(SoccerPlayer soccerPlayer) {
+    soccerPlayerRepository.save(soccerPlayer);
+}
+```  
+
+예제 코드입니다. 부모 트랜잭션에서 RuntimeException을 던졌지만 자식 트랜잭션은 새로운 트랜잭션으로 작업을 수행하였기 때문에 부모 트랜잭션에 영향을 받지 않아 손흥민 이라는 이름을 가진 엔티티는 정상적으로 저장이 되게 되어 테스트를 통과하게 됩니다.  
+
 
