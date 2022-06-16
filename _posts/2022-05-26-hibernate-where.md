@@ -137,68 +137,68 @@ void whereAnnotationTest1() {
 
 ```sql
 select
-        activesubo0_.main_order_id as main_ord9_2_0_,
-        activesubo0_.id as id1_2_0_,
-        activesubo0_.id as id1_2_1_,
-        activesubo0_.active as active2_2_1_,
-        activesubo0_.from_address as from_add3_2_1_,
-        activesubo0_.from_name as from_nam4_2_1_,
-        activesubo0_.from_phone_number as from_pho5_2_1_,
-        activesubo0_.main_order_id as main_ord9_2_1_,
-        activesubo0_.to_address as to_addre6_2_1_,
-        activesubo0_.to_name as to_name7_2_1_,
-        activesubo0_.to_phone_number as to_phone8_2_1_ 
-    from
-        sub_order activesubo0_ 
-    where
-        (
-            activesubo0_.active = true
-        ) 
-        and activesubo0_.main_order_id=1
+    activesubo0_.main_order_id as main_ord9_2_0_,
+    activesubo0_.id as id1_2_0_,
+    activesubo0_.id as id1_2_1_,
+    activesubo0_.active as active2_2_1_,
+    activesubo0_.from_address as from_add3_2_1_,
+    activesubo0_.from_name as from_nam4_2_1_,
+    activesubo0_.from_phone_number as from_pho5_2_1_,
+    activesubo0_.main_order_id as main_ord9_2_1_,
+    activesubo0_.to_address as to_addre6_2_1_,
+    activesubo0_.to_name as to_name7_2_1_,
+    activesubo0_.to_phone_number as to_phone8_2_1_ 
+from
+    sub_order activesubo0_ 
+where
+    (
+        activesubo0_.active = true
+    ) 
+    and activesubo0_.main_order_id=1
 ```  
 
 ```sql
 select
-        deactivate0_.main_order_id as main_ord9_2_0_,
-        deactivate0_.id as id1_2_0_,
-        deactivate0_.id as id1_2_1_,
-        deactivate0_.active as active2_2_1_,
-        deactivate0_.from_address as from_add3_2_1_,
-        deactivate0_.from_name as from_nam4_2_1_,
-        deactivate0_.from_phone_number as from_pho5_2_1_,
-        deactivate0_.main_order_id as main_ord9_2_1_,
-        deactivate0_.to_address as to_addre6_2_1_,
-        deactivate0_.to_name as to_name7_2_1_,
-        deactivate0_.to_phone_number as to_phone8_2_1_ 
-    from
-        sub_order deactivate0_ 
-    where
-        (
-            deactivate0_.active = false
-        ) 
-        and deactivate0_.main_order_id=1
+    deactivate0_.main_order_id as main_ord9_2_0_,
+    deactivate0_.id as id1_2_0_,
+    deactivate0_.id as id1_2_1_,
+    deactivate0_.active as active2_2_1_,
+    deactivate0_.from_address as from_add3_2_1_,
+    deactivate0_.from_name as from_nam4_2_1_,
+    deactivate0_.from_phone_number as from_pho5_2_1_,
+    deactivate0_.main_order_id as main_ord9_2_1_,
+    deactivate0_.to_address as to_addre6_2_1_,
+    deactivate0_.to_name as to_name7_2_1_,
+    deactivate0_.to_phone_number as to_phone8_2_1_ 
+from
+    sub_order deactivate0_ 
+where
+    (
+        deactivate0_.active = false
+    ) 
+    and deactivate0_.main_order_id=1
 ```  
 
 ```sql
 select
-        fromnameli0_.main_order_id as main_ord9_2_0_,
-        fromnameli0_.id as id1_2_0_,
-        fromnameli0_.id as id1_2_1_,
-        fromnameli0_.active as active2_2_1_,
-        fromnameli0_.from_address as from_add3_2_1_,
-        fromnameli0_.from_name as from_nam4_2_1_,
-        fromnameli0_.from_phone_number as from_pho5_2_1_,
-        fromnameli0_.main_order_id as main_ord9_2_1_,
-        fromnameli0_.to_address as to_addre6_2_1_,
-        fromnameli0_.to_name as to_name7_2_1_,
-        fromnameli0_.to_phone_number as to_phone8_2_1_ 
-    from
-        sub_order fromnameli0_ 
-    where
-        (
-            LOWER(fromnameli0_.from_name) LIKE 'c%'
-        ) 
-        and fromnameli0_.main_order_id=1
+    fromnameli0_.main_order_id as main_ord9_2_0_,
+    fromnameli0_.id as id1_2_0_,
+    fromnameli0_.id as id1_2_1_,
+    fromnameli0_.active as active2_2_1_,
+    fromnameli0_.from_address as from_add3_2_1_,
+    fromnameli0_.from_name as from_nam4_2_1_,
+    fromnameli0_.from_phone_number as from_pho5_2_1_,
+    fromnameli0_.main_order_id as main_ord9_2_1_,
+    fromnameli0_.to_address as to_addre6_2_1_,
+    fromnameli0_.to_name as to_name7_2_1_,
+    fromnameli0_.to_phone_number as to_phone8_2_1_ 
+from
+    sub_order fromnameli0_ 
+where
+    (
+        LOWER(fromnameli0_.from_name) LIKE 'c%'
+    ) 
+    and fromnameli0_.main_order_id=1
 ```  
 
 세 쿼리를 보니 모두 `@Where` 어노테이션에 작성한 sql문 대로 잘 수행된것을 확인할 수 있습니다. 
@@ -236,45 +236,45 @@ void whereAnnotationTest2() {
 
 ```sql
 select
-        mainorder0_.id as id1_0_,
-        mainorder0_.order_date as order_da2_0_ 
-    from
-        main_order mainorder0_ 
-    where
-        (
-            select
-                count(suborder1_.main_order_id) 
-            from
-                sub_order suborder1_ cross 
-            join
-                main_order mainorder2_ 
-            where
-                suborder1_.main_order_id=mainorder2_.id 
-                and mainorder0_.id=suborder1_.main_order_id 
-                and (
-                    lower(suborder1_.from_name) like 'c%' escape '!'
-                )
-        )>0
+    mainorder0_.id as id1_0_,
+    mainorder0_.order_date as order_da2_0_ 
+from
+    main_order mainorder0_ 
+where
+    (
+        select
+            count(suborder1_.main_order_id) 
+        from
+            sub_order suborder1_ cross 
+        join
+            main_order mainorder2_ 
+        where
+            suborder1_.main_order_id=mainorder2_.id 
+            and mainorder0_.id=suborder1_.main_order_id 
+            and (
+                lower(suborder1_.from_name) like 'c%' escape '!'
+            )
+    )>0
 ```  
 
 ```sql
 select
-        mainorder0_.id as id1_0_,
-        mainorder0_.order_date as order_da2_0_ 
-    from
-        main_order mainorder0_ 
-    where
-        (
-            select
-                count(fromnameli1_.main_order_id) 
-            from
-                sub_order fromnameli1_ 
-            where
-                mainorder0_.id = fromnameli1_.main_order_id 
-                and (
-                    LOWER(fromnameli1_.from_name) LIKE 'c%'
-                ) 
-        )>0
+    mainorder0_.id as id1_0_,
+    mainorder0_.order_date as order_da2_0_ 
+from
+    main_order mainorder0_ 
+where
+    (
+        select
+            count(fromnameli1_.main_order_id) 
+        from
+            sub_order fromnameli1_ 
+        where
+            mainorder0_.id = fromnameli1_.main_order_id 
+            and (
+                LOWER(fromnameli1_.from_name) LIKE 'c%'
+            ) 
+    )>0
 ```  
 
 테스트도 통과하고 결과도 동일한것을 확인할 수 있습니다. 이처럼 QueryDSL에도 쉽게 사용가능한 것을 확인할 수 있습니다.
