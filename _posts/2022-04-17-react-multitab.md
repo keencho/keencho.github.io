@@ -339,7 +339,7 @@ const Tab = (props: Props): JSX.Element => {
       // @ts-ignore
       ref={dragDropRef}
       className={`${style.item} ${RouterControlUtil.isActiveComponent(props.component) ? style.active : ''}`}
-      style={{ ...style, opacity }}
+      {% raw %}style={{ ...style, opacity }}{% endraw %}
     >
       <button
         className={style.btn}

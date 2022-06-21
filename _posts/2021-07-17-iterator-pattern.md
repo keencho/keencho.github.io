@@ -150,12 +150,14 @@ public class Client {
     }
 
     private static List<User> getTestUserList() {
-        return new ArrayList<>() {{
-            add(new User("홍길동", 20, "gildong"));
-            add(new User("이순신", 50, "sunshin"));
-            add(new User("김첨지", 43, "chumji"));
-            add(new User("신사임당", 20, "imgentleman"));
-        }};
+        return new ArrayList<>(
+            Arrays.asList(
+                   new User("홍길동", 20, "gildong"),
+                   new User("이순신", 50, "sunshin"),
+                   new User("김첨지", 43, "chumji"),
+                   new User("신사임당", 20, "imgentleman")
+           )
+        );
     }
 }
 ```
