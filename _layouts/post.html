@@ -20,14 +20,6 @@ tail_includes:
       {% include datetime.html date=page.date tooltip=true %}
     </span>
 
-    <!-- lastmod date -->
-    {% if page.last_modified_at %}
-    <span>
-      {{ site.data.locales[lang].post.updated }}
-      {% include datetime.html date=page.last_modified_at tooltip=true %}
-    </span>
-    {% endif %}
-
   {% if page.image.path %}
     {% capture bg %}
       {% unless page.image.no_bg %}{{ 'bg' }}{% endunless %}
@@ -67,16 +59,6 @@ tail_includes:
       {% elsif author_name == site.social.name %}
         {% assign author_link = site.social.links[0] %}
       {% endif %}
-
-      {{ site.data.locales[lang].post.written_by }}
-
-      <em>
-        {% if author_link %}
-          <a href="{{ author_link }}">{{ author_name }}</a>
-        {% else %}
-        {{ author_name }}
-        {% endif %}
-      </em>
     </span>
 
     <div>
