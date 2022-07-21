@@ -1,6 +1,6 @@
 ---
-title: 
-author: Hibernate, JPA 에서 발생하는 Cross Join 문제 해결하기
+title: Hibernate, JPA 에서 발생하는 Cross Join 문제 해결하기
+author: keencho
 date: 2022-07-20 20:12:00 +0900
 categories: [Hibernate]
 tags: [JPA, Hibernate]
