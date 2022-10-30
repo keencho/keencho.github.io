@@ -359,4 +359,4 @@ export default Tab
 ### 마무리
 리액트 라우터를 사용하지 않고 멀티탭을 구현하는 방법을 소개해 보았습니다. 단, 위의 코드로는 실제 url이 변경되지 않기 때문에 만약 url이 변경되게 하고 싶다면 추가 코드를 작성해야할 수도 있습니다.
 
-[이곳](https://github.com/keencho/react-multitab-example) 에서 전체 코드를 확인하실 수 있습니다.
+[이곳](https://github.com/keencho/react-multitab-sample) 에서 전체 코드를 확인하실 수 있습니다.
