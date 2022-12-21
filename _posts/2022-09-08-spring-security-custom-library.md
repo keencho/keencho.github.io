@@ -996,5 +996,5 @@ public AdminAccount authTestAdmin(
 어쨌든 이 포스팅이 자신만의 Spring Security 인증을 구현하려는 분들께 도움이 되었으면 좋겠습니다.  
 
 > 라이브러리: [https://github.com/keencho/lib-spring/tree/master/src/main/java/com/keencho/lib/spring/security](https://github.com/keencho/lib-spring/tree/master/src/main/java/com/keencho/lib/spring/security)  
-> 예제: [https://github.com/keencho/spring/tree/master/security](https://github.com/keencho/spring/tree/master/security)
+> 예제: [https://github.com/keencho/java-sandbox/tree/master/spring-security](https://github.com/keencho/java-sandbox/tree/master/spring-security)
 
