@@ -8,547 +8,287 @@ tags: [Java, JPA, QueryDSL]
 
 # **QueryProjection 에서 한단계 더 나아가 QueryProjectionBuilder 만들기 (2) - 개발 과정, 코드**
 
-> 이 포스팅에서 설명하는 코드는 한 프로젝트 내에서 사용할 수 없습니다.
-> 라이브러리 프로젝트 A, 실제 어플리케이션 프로젝트 B 로 나뉘어야 합니다.
-> java17, gradle, querydsl-*:5.0.0 을 사용합니다.
+> 이 포스팅에서 설명하는 코드는 한 프로젝트 내에서 사용할 수 없습니다.  
+> 라이브러리 프로젝트 A, 실제 어플리케이션 프로젝트 B 로 나뉘어야 합니다.  
+> java17, maven 을 사용합니다.  
 
-## **1. gradle plugin 분석**
-gradle로 환경을 구성하는 분들이시라면 아마 ewerk-plugin을 사용해 querydsl을 컴파일하실 것입니다. build.gradle에는 다음과 같이 정의되어 있겠죠.
 
-```gradle
-plugins {
-    ...
-    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
-}
-
-...
-
-// querydsl
-def querydslDir = "$buildDir/generated/querydsl"
-
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
-
-sourceSets {
-    main.java.srcDir querydslDir
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-
-    querydsl.extendsFrom compileClasspath
-}
-
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
-```
-
-@QueryProjection 어노테이션이 어떻게 코드를 생성하는지 확인해봐야 하기 때문에 이 플러그인을 분석해보겠습니다. [여기](https://github.com/ewerk/gradle-plugins/tree/master/querydsl-plugin) 에서 코드를 확인해 보실수 있습니다.
-
-쭉 코드를 분석해보면 [이 클래스](https://github.com/ewerk/gradle-plugins/blob/master/querydsl-plugin/src/main/groovy/com/ewerk/gradle/plugins/QuerydslPluginExtension.groovy) 에서 annotation processor를 지정하는것을 확인할 수 있습니다.
-
-gradle 파일의 querydsl 블럭을 보면 jpa가 true로 세팅된것을 확인할수 있고, 이에따라 `com.querydsl.apt.jpa.JPAAnnotationProcessor` 를 사용한다는 것을 확인할 수 있습니다. IDE에서 해당 클래스를 찾아봅시다.
+## **1. @QueryProjection 으로 생성되는 클래스 분석**  
+클래스를 프로젝션 타입으로 사용하기 위해 우리는 클래스 생성자에 @QueryProjection 어노테이션을 붙이고 Q 클래스를 생성합니다. 생성되는 Q 클래스는 다음과 같습니다.  
 
 ```java
-package com.querydsl.apt.jpa;
+/**
+ * com.keencho.libormtest.model.QCustomerDTO is a Querydsl Projection type for CustomerDTO
+ */
+@Generated("com.querydsl.codegen.DefaultProjectionSerializer")
+public class QCustomerDTO extends ConstructorExpression<CustomerDTO> {
 
-@SupportedAnnotationTypes({"com.querydsl.core.annotations.*", "jakarta.persistence.*", "javax.persistence.*"})
-public class JPAAnnotationProcessor extends AbstractQuerydslProcessor {
+    private static final long serialVersionUID = -785800583L;
 
-    @Override
-    protected Configuration createConfiguration(RoundEnvironment roundEnv) {
-        Class<? extends Annotation> entity = Entity.class;
-        Class<? extends Annotation> superType = MappedSuperclass.class;
-        Class<? extends Annotation> embeddable = Embeddable.class;
-        Class<? extends Annotation> embedded = Embedded.class;
-        Class<? extends Annotation> skip = Transient.class;
-        return new JPAConfiguration(roundEnv, processingEnv,
-                entity, superType, embeddable, embedded, skip);
+    public QCustomerDTO(com.querydsl.core.types.Expression<Long> id, com.querydsl.core.types.Expression<String> loginId, com.querydsl.core.types.Expression<String> password, com.querydsl.core.types.Expression<String> name, com.querydsl.core.types.Expression<Integer> age) {
+        super(CustomerDTO.class, new Class<?>[]{long.class, String.class, String.class, String.class, int.class}, id, loginId, password, name, age);
     }
 
 }
-```
+```  
 
-부모클래스인 `AbstractQuerydslProcessor` 를 확인해보면 `process(...)` 메소드에 의해 Q클래스들이 생성되는것을 확인할 수 있습니다.
+![ConstructorExpression](/assets/img/custom/querydsl-builder-projection/ConstructorExpression.jpg)  
+
+`ConstructorExpression` 클래스를 상속하는 것을 확인할 수 있습니다. 해당 클래스의 생성자를 살펴봅시다. 생성자의 인자로 제네릭 클래스 타입과 프로젝션의 타입을 담은 배열, 그리고 프로젝션의 값을 인자로 받고 있는 것을 확인할 수 있습니다.  
+
+![ConstructorExpressionConstructor](/assets/img/custom/querydsl-builder-projection/ConstructorExpressionConstructor.JPG)  
+
+아래로 내래보면 `newInstance(Object... args)` 라는 메소드를 확인할 수 있습니다. 이 메소드가 바로 프로젝션을 생성하는 메소드 입니다.  
+
+![newInstance](/assets/img/custom/querydsl-builder-projection/newInstance.JPG)  
+
+생성자와 메소드를 통해 어떻게 생성자를 통해 조회 결과를 반환 받을수 있는지 확인할 수 있습니다.  
+
+## **2. 새로운 Expression 클래스 만들기**  
+위에서 살펴본 `ConstructorExpression` 은 어디까지나 클래스의 모든 필드를 매개변수로 갖는 생성자를 위한 조회 방식이기 때문에 빌더패턴을 사용할 수 없습니다. `FactoryExpressionBase` 클래스를 상속하는 새로운 프로젝션 클래스를 만드는게 낫겠네요.  
+
+```java
+ public KcExpression(Class<? extends T> type, Map<String, Expression<?>> bindings) {
+    super(type);
+    this.type = type;
+
+    if (bindings == null || bindings.isEmpty()) {
+        throw new RuntimeException("bindings must not be null or empty!");
+    }
+
+    this.bindings = Collections.unmodifiableMap(
+            bindings
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue() != null)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (x, y) -> y, LinkedHashMap::new))
+    );
+}
+```  
+
+프로젝션 클래스의 생성자 입니다. 클래스 타입과 `Map<String, Expression<?>>`을 매개변수로 받습니다. 전달받은 map에서 null값을 제외하고 순서를 보장하는 `LinkedHashMap`으로 다시 생성하여 bindings 변수에 할당합니다.  
 
 ```java
 @Override
-public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    setLogInfo();
-    logInfo("Running " + getClass().getSimpleName());
+public T newInstance(Object... a) {
+    try {
+        var arr = this.bindings.keySet().toArray();
 
-    if (roundEnv.processingOver() || annotations.size() == 0) {
-        return ALLOW_OTHER_PROCESSORS_TO_CLAIM_ANNOTATIONS;
+        var rv = this.type.getDeclaredConstructor().newInstance();
+        for (var i = 0; i < a.length; i ++) {
+            var value = a[i];
+            if (value != null) {
+                var field = this.type.getDeclaredField((String) arr[i]);
+                field.setAccessible(true);
+                field.set(rv, value);
+            }
+        }
+
+        return rv;
+    } catch (InstantiationException | IllegalAccessException | NoSuchFieldException | InvocationTargetException | NoSuchMethodException e) {
+        throw new ExpressionException(e.getMessage(), e);
     }
-.....
-```
+}
+```  
 
-그렇다면 `JPAAnnotationProcessor` 를 상속받는 annotation processor를 만들고 그 안에서 파일을 생성하는 코드를 작성하면 되겠네요.
+`newInstance` 메소드에서는 리플렉션으로 빈 생성자를 생성하고 값이 넘어온 순서대로 필드에 값을 저정합니다. 문제는 이 메소에는 필드의 정보나 타입같은건 넘어오지 않는다는 점입니다.  
+오직 `Object...` 형식으로 순수한 값만 넘어오기 때문에 현재 넘어오는 값이 어떠한 필드에 매핑되는지 알 수 없습니다. 그래도 다행인 것은 값이 필드 순서대로 넘어온다는 것입니다.  
 
-## **2. 어노테이션 및 QBean 상속 클래스 만들기**
-먼저 어노테이션을 만들겠습니다. 이 어노테이션은 클래스에 붙을수 있는 어노테이션이며 이 어노테이션이 붙은 클래스는 파일 생성 대상으로 지정됩니다. 참고로 **이 어노테이션이 붙은 클래스에는 기본 빈 생성자가 꼭 존재해야 합니다.**
+제가 위에서 순서를 보장하는 `LinkedHashMap`을 사용했던 것은 위와같은 이유 때문입니다. 물론 애초에 이 클래스가 생성되는 시점에도 순서가 보장된 map을 파라미터로 넘겨야 합니다. 
+메소드에 넘어오는 값이 순서를 보장하기 때문에 클래스의 필드정보를 담고 있는 map 객체의 요소가 반환받을 클래스의 필드 선언 순서와 동일하다면 문제없이 반환받을 클래스에 값을 저장하고 넘겨받을 수 있겠죠.  
+
+## **3. record를 반환 받을 수 있는 Expression 만들기**  
+위에서 만든 Expression 클래스에는 문제가 하나 있습니다. 빈 생성자를 만들고 그 이후에 값을 세팅하는 방식이기 때문에 빈 생성자가 존재할 수 없는 `record` 타입의 클래스는 사용할 수 없습니다.  
+
+이를 위해 `record` 클래스 에 사용할 Expression 클래스는 따로 만들도록 하겠습니다.
+
+```java
+public class KcRecordExpression<T extends Record> extends KcExpression<T> {
+
+    private final Class<? extends T> type;
+
+    public KcRecordExpression(Class<? extends T> type, Map<String, Expression<?>> bindings) {
+        super(type, bindings);
+        if (!type.isRecord()) {
+            throw new RuntimeException("This expression is an expression for record. Use KcExpression to bind a regular class.");
+        }
+
+        this.type = type;
+    }
+
+    @Override
+    public T newInstance(Object... a) {
+        if (this.type.getDeclaredFields().length != a.length) {
+            throw new RuntimeException("Because a record type must create an object as a constructor that accepts all variables as arguments, the number of declared fields and the number of parameters to bind must be the same.");
+        }
+
+        try {
+            var arr = getBindings().keySet().toArray();
+            var fields = new Field[a.length];
+            for (var i = 0; i < fields.length; i ++) {
+                fields[i] = this.type.getDeclaredField((String) arr[i]);
+            }
+
+            var matchedConstructor = Arrays
+                    .stream(this.type.getConstructors())
+                    .filter(constructor -> {
+                        var parameterTypes = constructor.getParameterTypes();
+                        for (var i = 0; i < a.length; i ++) {
+                            var constructorType = parameterTypes[i];
+                            var field = fields[i];
+                            if (!constructorType.getTypeName().equals(field.getType().getTypeName())) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }).toList();
+
+            if (matchedConstructor.size() != 1) {
+                throw new RuntimeException("No or more than one constructor exists with the same number and type of parameters. It seems record is not suitable for this case.");
+            }
+
+            var constructor = matchedConstructor.get(0);
+            return (T) constructor.newInstance(a);
+        } catch (Exception e) {
+            throw new ExpressionException(e.getMessage(), e);
+        }
+    }
+}
+```  
+
+클래스 생성 시점에 타입이 `record` 타입인지 검사합니다.  
+
+`newInstance` 메소드에는 방어 코드가 존재합니다. 첫째로 반환받을 `record` 클래스의 필드 갯수와 메소드에 넘어온 파라미터의 갯수가 똑같아야 합니다. 클래스 내에 있는 모든 변수들을 인수로 받을 생성자를 만들어야 하기 때문에 당연합니다.  
+
+둘째로 사용할 생성자가 명확해야 합니다. `record` 클래스 내에도 생성자는 여러개 존재할 수 있습니다. 그러나 여기서 사용할 생성자는 자바가 기본으로 만들어주는 모든 변수를 인수로 갖는 생성자여야 합니다. 따라서 값의 타입과 매개변수의 타입, 생성자 매개변수의 숫자를 검증하여 생성자의 조건과 일치하는 단 하나의 생성자만을 사용하도록 하였습니다.  
+
+## **4. AnnotationProcessor 만들기**  
+커스텀 어노테이션을 만들고 해당 어노테이션이 붙어있는 클래스를 위에서 만든 프로젝션 클래스를 상속하는 클래스로써 새롭게 만들기 위해 AnnotationProcessor를 만들어야 합니다.  
+
+첫째로 클래스 위에 붙일 어노테이션 입니다.  
+
 ```java
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RUNTIME)
 public @interface KcQueryProjection {
 }
+```  
+
+다음은 `AbstractProcessor`를 상속하는 AnnotationProcessor 클래스 입니다. 전체 코드는 이 글 하단의 링크에서 확인하실 수 있습니다.  
+
+뭔가 특별한 방식이 있을것 같지만 전 그냥 다음과 같이 무식하게 작성하였습니다.  
+
+![annotation-processor](/assets/img/custom/querydsl-builder-projection/annotation-processor.JPG)  
+
+여기서 중요한 점은 세가지 입니다.
+1. 현재 클래스가 `record` 인지 일반 클래스인지 구분 -> Expression 클래스가 다름
+2. 제네릭 타입으로 원시 타입을 사용할 수 없기 때문에 원시 타입을 참조 타입으로 변경
+3. 바인딩 map 객체를 만들때는 순서를 보장하는 `LinkedHashMap` 사용 (위에서 설명)  
+
+이제 현재 프로젝트가 AnnotationProcessor로써 동작하게 하기 위해 추가로 필요한 작업을 진행합니다.  
+1. resources/META-INF/services/javax.annotation.processing.Processor 파일에 AnnotationProcessor 클래스 명시  
+2. pom.xml 에 아래 플러그인을 추가하여 컴파일러가 현재 프로젝트를 컴파일할때 annotation processing 작업을 건너 뛰도록 함
+
+![proc-none](/assets/img/custom/querydsl-builder-projection/proc-none.JPG)  
+
+필요한 작업을 진행하였다면 다음 명령어를 실행하여 local maven repository에 현재 프로젝트가 배포될 수 있도록 합니다.  
+
+```
+clean install -DskipTests
 ```
 
-다음은 QBean을 상속하는 클래스를 만들겠습니다. `Projections.fields(...)` 와 `Projections.bean(...)` 메소드가 QBean 클래스를 리턴하기 때문에 이를 선택했습니다.
+## **5. 테스트**
+이제 새로운 프로젝트를 하나 만들고 위에서 만든 작업물을 테스트해 보도록 하겠습니다.  
+
+배포된 프로젝트와 `querydsl-apt`를 의존성에 추가하고 `maven compiler plugin`을 추가하고 annotationProcessor를 등록합니다.  
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+
+                <generatedSourcesDirectory>target/generated-sources/querydsl</generatedSourcesDirectory>
+                <annotationProcessors>
+                    <annotationProcessor>
+                        com.querydsl.apt.jpa.JPAAnnotationProcessor
+                    </annotationProcessor>
+                    <annotationProcessor>
+                        com.keencho.querydsl.KcQuerydslAnnotationProcessor
+                    </annotationProcessor>
+                </annotationProcessors>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+이제 반환받기 원하는 class, record에 어노테이션을 붙이고 프로젝트를 컴파일 합니다.  
+
+> :warning: 프로젝션 클래스에서 빈 생성자를 필요로 하기 때문에 아래 어노테이션이 붙은 클래스에는 빈 생성자가 필수로 존재해야 합니다. (없다면 NoSuchMethodException 발생) 
 
 ```java
-public class KcQBean<T> extends QBean<T> {
+@KcQueryProjection
+public record CustomerRecord(
+        Long id,
+        String loginId,
+        String password,
+        String name
+) { }
+```  
 
-    private final Class<? extends T> type;
-
-    public KcQBean(Class<? extends T> type) {
-        super(type);
-        this.type = type;
-    }
-
-    public KcQBean(Class<? extends T> type, Map<String, Expression<?>> bindings) {
-        super(type, true, bindings);
-        this.type = type;
-    }
-
-    public QBean<T> build() {
-        Map<String, Expression<?>> bindings = new HashMap<>();
-
-        for (var declaredField : this.getClass().getDeclaredFields()) {
-            var modifiers = declaredField.getModifiers();
-            if (!Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
-                declaredField.setAccessible(true);
-                try {
-                    var v = declaredField.get(this);
-                    if (v != null) {
-                        bindings.put(declaredField.getName(), (Expression<?>) v);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new KcSystemException(e.getMessage());
-                }
-            }
-        }
-
-        return new KcQBean<>(this.type, bindings);
-    }
-}
-```
-
-첫번째 생성자는 조회할 DTO를 만들때 사용됩니다. 두번째 생성자는 실제 쿼리가 날라가기 이전에 build() 메소드에 의해 사용됩니다. 결국 객체를 두번생성하는 것이기 때문에 메모리 낭비라고 볼수도 있겠네요.
-
-사실 QBean 클래스의 생성자의 접근제어자가 public 이었다면 객체를 한번만 생성해도 되지만 아쉽게도 생성자의 접근제어자가 모두 protected이기 때문에 어쩔수 없는 선택이었습니다.
-
-## **3. 코드 Writer, Serializer**
-querydsl-apt 이 Q 코드를 생성할때는 `com.querydsl.codegen.Serializer` 인터페이스를 상속받은 serializer들과 `com.querydsl.codegen.utils.JavaWriter`를 사용합니다. 예를들어 @QueryProjection 대상 클래스를 생성할 경우 `com.querydsl.codegen.DefaultProjectionSerializer` 를 사용합니다.
-
-어쨌든 이 기능들이 모두 필요하지는 않습니다. 딱 필요한 메소드들만 담아 클래스를 두개 생성합니다.
+테스트 코드를 작성하고 테스트를 수행합니다.
 
 ```java
-public class KcJavaWriter {
+var q = QCustomer.customer;
 
-    private static final String PRIVATE = "private ";
+var predicate = new BooleanBuilder();
+predicate.and(q.name.contains("1"));
 
-    private static final String PUBLIC = "public ";
+var bindings = KcQCustomerDTO.builder()
+        .id(q.id)
+        .name(q.name)
+        .loginId(q.loginId)
+        .password(q.password)
+        .build();
 
-    private final Set<String> classes = new HashSet<>();
+var list = jpaQueryFactory
+        .select(bindings)
+        .from(q)
+        .where(predicate)
+        .orderBy(q.loginId.asc())
+        .fetch();
 
-    private final Set<String> packages = new HashSet<>();
+var bindings2 = KcQCustomerRecord.builder()
+        .id(q.id)
+        .name(q.name)
+        .loginId(q.loginId)
+        .password(q.password)
+        .build();
 
-    private static final String BUILDER = "builder ";
+var list2 = jpaQueryFactory
+        .select(bindings2)
+        .from(q)
+        .where(predicate)
+        .orderBy(q.loginId.asc())
+        .fetch();
 
-    private final Appendable appendable;
-    private String indent = "";
-    private final int spaces;
-    private final String spacesString;
-
-    public KcJavaWriter(Appendable appendable) {
-        this.appendable = appendable;
-        this.spaces = 4;
-        this.spacesString = StringUtils.repeat(' ', spaces);
-        this.packages.add("java.lang");
-    }
-
-    private KcJavaWriter param(Parameter parameter) throws IOException {
-        append(parameter.getType().getGenericName(true, packages, classes));
-        append(" ");
-        append(parameter.getName());
-        return this;
-    }
-
-    public KcJavaWriter nl() throws IOException {
-        return append(System.lineSeparator());
-    }
-
-    public KcJavaWriter line(String... segments) throws IOException {
-        append(indent);
-        for (String segment : segments) {
-            append(segment);
-        }
-        return nl();
-    }
-
-    public KcJavaWriter append(CharSequence csq) throws IOException {
-        appendable.append(csq);
-        return this;
-    }
-
-    public KcJavaWriter beginLine(String... segments) throws IOException {
-        append(indent);
-        for (String segment : segments) {
-            append(segment);
-        }
-        return this;
-    }
-
-    public KcJavaWriter goIn() {
-        indent += spacesString;
-        return this;
-    }
-
-    public KcJavaWriter goOut() {
-        if (indent.length() >= spaces) {
-            indent = indent.substring(0, indent.length() - spaces);
-        }
-        return this;
-    }
-
-    public KcJavaWriter privateExpressionField(Type type, String name) throws IOException {
-        return beginLine(PRIVATE)
-                .param(new Parameter(name, new ClassType(Expression.class, type)))
-                .append(Symbols.SEMICOLON)
-                .nl().nl();
-    }
-
-    public KcJavaWriter setterMethod(Type type, String name) throws IOException {
-        return beginLine(PUBLIC)
-                .param(new Parameter("set" + StringUtils.capitalize(name), new ClassType(void.class)))
-                .append("(")
-                .param(new Parameter(name, new ClassType(Expression.class, type)))
-                .append(") {")
-                .nl()
-                .goIn()
-                .beginLine(String.format("this.%s = %s;", name, name))
-                .nl()
-                .goOut()
-                .beginLine("}")
-                .nl().nl();
-    }
-
-    public KcJavaWriter builderMethod(Type type, String name) throws IOException {
-        return beginLine(PUBLIC).append(StringUtils.capitalize(BUILDER))
-                .append(name).append("(").param(new Parameter(name, new ClassType(Expression.class, type))).append(") {")
-                .nl()
-                .goIn()
-                .beginLine(String.format("this.%s = %s;", name, name))
-                .nl()
-                .beginLine("return this;")
-                .nl()
-                .goOut()
-                .beginLine("}")
-                .nl().nl();
-    }
+for (var i = 0; i < list.size(); i ++) {
+    Assert.isTrue(list.get(i).getName().equals(list2.get(i).name()));
+    Assert.isTrue(list.get(i).getPassword().equals(list2.get(i).password()));
+    Assert.isTrue(list.get(i).getId().equals(list2.get(i).id()));
+    Assert.isTrue(list.get(i).getLoginId().equals(list2.get(i).loginId()));
 }
-```
+```  
 
-```java
-public class KcProjectionSerializer {
-
-    private static final String CLASS_PREFIX = "KcQ";
-
-    public static void serialize(final EntityType model, @NonNull KcJavaWriter writer) throws IOException {
-
-        // package
-        writer.line("package ", getPackageWithoutClassName(model), ";").nl();
-
-        // imports
-        writer.line("import ", NumberExpression.class.getPackageName(), ".*;");
-        writer.line("import ", KcQBean.class.getName(), ";");
-
-        // javadoc
-        writer.line("/**");
-        writer.line(" * " + getKcFullPackageName(model) + " is a KcQuerydsl Projection type for " + model.getSimpleName());
-        writer.line(" */");
-
-        // generated annotation
-        writer.line("@", Generated.class.getName(), "(\"", KcProjectionSerializer.class.getName(), "\")");
-
-        // init class
-        String className = getKcQClassName(model);
-
-        writer.beginLine("public class " + className);
-        writer.append(" extends ").append(KcQBean.class.getSimpleName()).append("<").append(model.getSimpleName()).append(">").append(" {");
-        writer.nl().nl();
-
-        // empty constructor
-        writer.goIn();
-        writer.line("public ", className, "() {");
-        writer.goIn();
-        writer.line("super(", model.getSimpleName(), ".class);");
-        writer.goOut();
-        writer.line("}");
-        writer.nl();
-
-        // builder constructor
-        writer.line("public ", className, "(Builder builder) {");
-        writer.goIn();
-        writer.line("super(", model.getSimpleName(), ".class);");
-
-        for (var property : model.getProperties()) {
-            var name = property.getName();
-            writer.line("this.", name, " = builder.", name, ";");
-        }
-
-        writer.goOut();
-        writer.line("}");
-        writer.nl();
-
-        // serialVersionUID
-        writer.line("private static final long serialVersionUID = ", model.hashCode() + "L;");
-        writer.nl();
-
-        // field / setter
-        for (var property : model.getProperties()) {
-            var type = property.getType();
-            var name = property.getName();
-
-            writer.privateExpressionField(type, name);
-            writer.setterMethod(type, name);
-        }
-
-        // builder method
-        writer.line("public static Builder builder() {");
-        writer.goIn();
-        writer.line("return new Builder();");
-        writer.goOut();
-        writer.line("}");
-        writer.nl();
-
-        // builder class
-        writer.line("public static class Builder {");
-        writer.nl();
-        writer.goIn();
-
-        // builder class field / build method
-        for (var property : model.getProperties()) {
-            var type = property.getType();
-            var name = property.getName();
-
-            writer.privateExpressionField(type, name);
-            writer.builderMethod(type, name);
-        }
-
-        // builder class final build method
-        writer.line("public ", className, " build() {");
-        writer.goIn();
-        writer.line("return new ", className, "(this);");
-        writer.goOut();
-        writer.line("}");
-        writer.nl();
-
-        // close builder class
-        writer.goOut();
-        writer.line("}");
-        writer.nl();
-
-        // close class
-        writer.goOut();
-        writer.line("}");
-    }
-
-    public static String getPackageWithoutClassName(EntityType entityType) {
-        return entityType.getInnerType().getPackageName();
-    }
-
-    public static String getKcFullPackageName(EntityType entityType) {
-        return getPackageWithoutClassName(entityType) + "." + CLASS_PREFIX + entityType.getInnerType().getSimpleName();
-    }
-
-    public static String getKcQClassName(EntityType entityType) {
-        return CLASS_PREFIX + entityType.getInnerType().getSimpleName();
-    }
-
-}
-```
-
-위 코드를 보시면 아시겠지만 package 정의, import, class... 모두 하나하나 파일에 입력하는 방식을 사용하고 있습니다. 항상 궁금해 했던 `Q 객체는 어떻게 생성되는 것일까?` 에 대한 궁금증도 해결되었네요.
-
-만들어질 클래스는 위에서 만든 `KcQBean` 클래스를 상속하게 되어있습니다. 또한 builder 메소드와 setter 메소드를 생성하여 생성자 방식 에서 벗어나게 되었습니다. 이펙티브 자바에 의하면 매개변수가 많은 경우 setter 대신 builder를 사용하라고 하였기 떄문에 builder / setter 둘다 여는것 보다는 builder는 기본으로 지정하고 setter는 어노테이션의 옵션으로 생성여부를 받는것도 좋은 방법이겠네요.
-
-또하나 보시면 클래스앞에 `Kc` 라는 prefix를 붙여 생성합니다. 이는 `@QueryProjection`과의 공존을 위한 것으로 `Q~` 형태의 클래스를 사용하려면 간단히 이미 만들어진 QClass 들을 override 하면 되지만 기존 `Q~` 클래스는 사라지게 된다는 단점이 있습니다. 저는 둘다 사용하기 위해 `Kc` 라는 prefix를 사용하였습니다.
-
-## **4. annotation processor**
-마지막 annotation processor 코드입니다. ewerk plugin에 의해 실행될 클래스를 정의합니다.
-
-```java
-@SupportedAnnotationTypes({"com.querydsl.core.annotations.*", "jakarta.persistence.*", "javax.persistence.*"})
-public class KcQuerydslAnnotationProcessor extends JPAAnnotationProcessor {
-
-    private RoundEnvironment roundEnv;
-    private Configuration conf;
-    private ExtendedTypeFactory typeFactory;
-
-    @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        var result = super.process(annotations, roundEnv);
-
-        this.roundEnv = roundEnv;
-        this.conf = super.createConfiguration(this.roundEnv);
-        this.typeFactory = new ExtendedTypeFactory(processingEnv, conf.getEntityAnnotations(), conf.getTypeMappings(), conf.getQueryTypeFactory(), conf.getVariableNameFunction());
-        this.generateAndSerialize();
-
-        return result;
-    }
-
-    private void generateAndSerialize() {
-        var kcQueryProjectionElement = this.roundEnv.getElementsAnnotatedWith(KcQueryProjection.class);
-
-        for (var element : kcQueryProjectionElement) {
-            var typeElement = (TypeElement) element;
-            var model = this.getEntityType(typeElement);
-
-            var serializer = new KcProjectionSerializer();
-            var fullPackageClassName = serializer.getKcFullPackageName(model);
-
-            try (Writer w = conf.getFiler().createFile(processingEnv, fullPackageClassName, Collections.singleton(typeElement))) {
-                var writer = new KcJavaWriter(w);
-                serializer.serialize(model, writer);
-            } catch (IOException ignored) { }
-
-        }
-    }
-
-    private EntityType getEntityType(TypeElement typeElement) {
-        var type = this.typeFactory.getType(typeElement.asType(), true);
-        var entityType = new EntityType(type.as(TypeCategory.ENTITY), this.conf.getVariableNameFunction());
-
-        for (var field : ElementFilter.fieldsIn(typeElement.getEnclosedElements())) {
-            entityType.addProperty(new Property(entityType, field.getSimpleName().toString(), this.typeFactory.getType(field.asType(), true)));
-        }
-
-        return entityType;
-    }
-
-}
-```
-
-기존의 작업을 `super.process(...)` 로 수행한 후에 `KcQueryProjection` 어노테이션이 붙어있는 클래스들을 대상으로 지정하고 코드를 생성합니다.
-
-주의할점이 하나 있습니다. 저는 위에서 설명했다시피 `Kc` 라는 prefix를 붙여 클래스를 생성합니다. 만약 prefix를 붙이지 않고 클래스를 생성한다면 `serialize()` 메소드의
-```java
-try (Writer w = conf.getFiler().createFile(processingEnv, fullPackageClassName, this.typeElements.get(val.getFullName()))) {
-    var writer = new KcJavaWriter(w);
-    KcProjectionSerializer.serialize(val, writer);
-} catch (IOException e) {
-    throw new KcRuntimeException(e.getMessage());
-}
-```
-부분에서 파일을 재생성 할 수 없다는 에러가 발생하게 됩니다. 만약 기존 q 파일을 override 하기 원하시는 분들이라면 위 코드는 다른 코드로 대체되어야 합니다.
-
-## **5. plugin 관련 설정**
-필요한 코드는 모두 작성하였습니다. 위에서 만든 `KcQuerydslAnnotationProcessor` 가 수행되게 만들어야 하는데요, 아까 잠시 살펴본 ewerk-plugin을 다시 살펴봅시다.
-
-`QuerydslPlugin.groovy` 클래스를 보면 아래와 같은 메소드가 있습니다.
-```groovy
-private static void applyCompilerOptions(Project project) {
-    project.tasks.compileQuerydsl.options.compilerArgs += [
-        "-proc:only",
-        "-processor", project.querydsl.processors()
-    ]
-
-    if(project.querydsl.aptOptions.size() > 0){
-        for(aptOption in project.querydsl.aptOptions) {
-            project.tasks.compileQuerydsl.options.compilerArgs << "-A" + aptOption
-        }
-    }
-}
-```
-
-컴파일러 옵션을 지정하는 시점에 `-processor` 로 프로세서를 지정하는 코드가 있네요. 그렇다면 이부분을 건드려 위에서 만든 processor가 수행되게 하면 되겠네요!
-
-build.gradle의 compileQuerydsl 블록을 다음과 같이 수정합니다.
-
-```groovy
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-
-    doFirst {
-        options.compilerArgs = ['-proc:only', '-processor', 'com.keencho.lib.spring.jpa.querydsl.KcQuerydslAnnotationProcessor']
-    }
-}
-```
-
-querydsl을 컴파일하기 전에 기존의 코드를 무시하고 `KcQuerydslAnnotationProcessor` 가 수행될수 있게 하였습니다.
-
-이 글의 서두에서 주의했듯이 위에서 살펴본 자바 코드가 작성된 프로젝트와 build.gradle이 속해있는 프로젝트는 달라야 합니다. 프로젝트가 같다면 A를 컴파일하기위해 A가 사용되어야 하기 때문에 작업을 수행할수 없겠죠.
-
-이제 기존처럼 `compileQuerydsl` task를 수행하면 끝입니다! 간단한 예제 코드와 함께 잘 동작하는지 확인해 보도록 하겠습니다.
-
-# **테스트**
-모델과 DTO 클래스는 따로 작성하지 않겠습니다. `이런식으로 조회할수 있다` 정도만 봐주시면 좋을것 같습니다. `compileQuerydsl` task 수행후 아래와 같은 테스트 코드를 작성하였습니다.
-
-```java
-@Test
-public void queryTest() {
-    var q = Q.delivery;
-
-    var deliveryDTO = new KcQDeliveryDTO();
-    deliveryDTO.setFromAddress(q.fromAddress);
-    deliveryDTO.setFromName(q.fromName);
-    deliveryDTO.setFromNumber(q.fromNumber);
-    deliveryDTO.build();
-
-    var simpleDTO = KcQSimpleDTO.builder()
-            .orderId(q.order.orderId)
-            .deliveryId(q.deliveryId)
-            .field(q.fromAddress)
-            .deliveryDTO(deliveryDTO.build())
-            .build();
-
-    var bb = new BooleanBuilder();
-    bb.and(q.fromAddress.startsWith("c"));
-
-    var list = queryFactory
-            .select(simpleDTO.build())
-            .from(q)
-            .where(predicate)
-            .fetch();
-
-    System.out.println(list.size());
-}
-```
-
-정상적으로 조회되었고 다음과 같은 쿼리가 수행되었습니다.
-```sql
-select
-    delivery0_.delivery_id as col_0_0_,
-    delivery0_.from_address as col_1_0_,
-    delivery0_.order_order_id as col_2_0_,
-    delivery0_.from_number as col_3_0_,
-    delivery0_.from_name as col_4_0_,
-    delivery0_.from_address as col_5_0_
-from
-    delivery delivery0_
-where
-    delivery0_.from_address like 'c%' escape '!'
-```
-
-객체안에 `deliveryDTO`객체를 넣어도 알아서 잘 불러오는것까지 확인하였습니다. `Map<String, Expressions<?>>` 형태의 맵에 질의할 데이터가 다 들어가기 때문에 잘 불러와지는것 같네요.
-
-제 개인적으로는 조회할 객체 안에 또다른 객체를 넣기보다는 case문이나 기타 sql문을 최대한 활용하여 조회할 객체 안에는 필드만 존재하게 하는것이 바람직하다고 생각합니다.
-
-# **마치며**
-개인적으로 이 라이브러리를 만들며 querydsl의 동작방식, q클래스의 생성원리등 querydsl을 사용하며 궁금했던 부분을 시원하게 해결하였습니다.
-
-**querydsl에 지나치게 의존적이다**라는 단점이 있지만 orm을 사용한 이상 코드에 의존하게 되는게 단점인지는 모르겠네요. 컴파일시점에 에러를 잡을 확률가게 된다는 장점도 존재하니까요. 실무에서 써봐야 알겠지만 기존방식에 비해 생산성이 향상되었으면 좋겠습니다.
-
-
-> 전체 코드: [https://github.com/keencho/lib-spring/tree/master/src/main/java/com/keencho/lib/spring/jpa/querydsl](https://github.com/keencho/lib-spring/tree/master/src/main/java/com/keencho/lib/spring/jpa/querydsl)
-
-
+# **코드 확인** 
+전체 코드는 [이곳](https://github.com/keencho/java-sandbox/tree/master/blog-example-code/querydsl-builder-projection) 에서 확인하실 수 있습니다.
 

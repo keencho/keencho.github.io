@@ -91,56 +91,21 @@ public class SimpleDTO {
 queryFactory.select(SimpleDTO.bindings).from(q).fetch();
 ```
 
-이 방식은 querydsl에 그다지 의존적이지 않으나 컴파일시점에 오류를 잡을수 없다는 문제가 존재합니다. 저는 querydsl에 의존적이더라도 오류를 잡을수 있는 방식을 선호하기 때문에 위 방식은 선택하지 않았습니다.
+이 방식은 querydsl에 그다지 의존적이지 않으나 컴파일 시점에 오류를 잡을수 없다는 문제가 존재합니다. 저는 querydsl에 의존적이더라도 오류를 잡을수 있는 방식을 선호하기 때문에 위 방식은 선택하지 않았습니다.
 
 ## **QBuilder를 만들자!**
-QueryProjection이 Q클래스를 생성하는 것처럼 builder, setter를 사용할 수 있는 저만의 Q클래스를 만들어보기로 하였습니다. 생성되는 Q 클래스의 모양새는 다음과 같습니다.
+QueryProjection이 Q클래스를 생성하는 것처럼 builder, setter를 사용할 수 있는 저만의 Q클래스를 만들어보기로 하였습니다. 생성되는 Q 클래스는 다음과 같습니다.
 
 ```java
-import com.querydsl.core.types.dsl.*;
-import com.keencho.lib.spring.jpa.querydsl.KcQBean;
 /**
- * com.keencho.spring.jpa.querydsl.dto.KcQSimpleDTO is a KcQuerydsl Projection type for SimpleDTO
+ * com.keencho.libormtest.model.KcQCustomerDTO is a KcQuerydsl Projection type for CustomerDTO
  */
-@javax.annotation.processing.Generated("com.keencho.lib.spring.jpa.querydsl.KcProjectionSerializer")
-public class KcQSimpleDTO extends KcQBean<SimpleDTO> {
+public class KcQCustomerDTO extends KcExpression<CustomerDTO> {
 
-    public KcQSimpleDTO() {
-        super(SimpleDTO.class);
-    }
+    private static final long serialVersionUID = 842345744L;
 
-    public KcQSimpleDTO(Builder builder) {
-        super(SimpleDTO.class);
-        this.deliveryDTO = builder.deliveryDTO;
-        this.deliveryId = builder.deliveryId;
-        this.field = builder.field;
-        this.orderId = builder.orderId;
-    }
-
-    private static final long serialVersionUID = 1803879685L;
-
-    private com.querydsl.core.types.Expression<com.keencho.spring.jpa.querydsl.dto.DeliveryDTO> deliveryDTO;
-
-    public void setDeliveryDTO(com.querydsl.core.types.Expression<com.keencho.spring.jpa.querydsl.dto.DeliveryDTO> deliveryDTO) {
-        this.deliveryDTO = deliveryDTO;
-    }
-
-    private com.querydsl.core.types.Expression<Long> deliveryId;
-
-    public void setDeliveryId(com.querydsl.core.types.Expression<Long> deliveryId) {
-        this.deliveryId = deliveryId;
-    }
-
-    private com.querydsl.core.types.Expression<String> field;
-
-    public void setField(com.querydsl.core.types.Expression<String> field) {
-        this.field = field;
-    }
-
-    private com.querydsl.core.types.Expression<Long> orderId;
-
-    public void setOrderId(com.querydsl.core.types.Expression<Long> orderId) {
-        this.orderId = orderId;
+    public KcQCustomerDTO(Builder builder) {
+        super(CustomerDTO.class, builder.buildBindings());
     }
 
     public static Builder builder() {
@@ -149,36 +114,49 @@ public class KcQSimpleDTO extends KcQBean<SimpleDTO> {
 
     public static class Builder {
 
-        private com.querydsl.core.types.Expression<com.keencho.spring.jpa.querydsl.dto.DeliveryDTO> deliveryDTO;
-
-        public Builder deliveryDTO(com.querydsl.core.types.Expression<com.keencho.spring.jpa.querydsl.dto.DeliveryDTO> deliveryDTO) {
-            this.deliveryDTO = deliveryDTO;
+        private com.querydsl.core.types.Expression<java.lang.Long> id;
+        public Builder id(com.querydsl.core.types.Expression<java.lang.Long> id) {
+            this.id = id;
+            return this;
+        }
+        
+        private com.querydsl.core.types.Expression<java.lang.String> loginId;
+        public Builder loginId(com.querydsl.core.types.Expression<java.lang.String> loginId) {
+            this.loginId = loginId;
+            return this;
+        }
+        
+        private com.querydsl.core.types.Expression<java.lang.String> password;
+        public Builder password(com.querydsl.core.types.Expression<java.lang.String> password) {
+            this.password = password;
+            return this;
+        }
+        
+        private com.querydsl.core.types.Expression<java.lang.String> name;
+        public Builder name(com.querydsl.core.types.Expression<java.lang.String> name) {
+            this.name = name;
+            return this;
+        }
+        
+        private com.querydsl.core.types.Expression<java.lang.Integer> age;
+        public Builder age(com.querydsl.core.types.Expression<java.lang.Integer> age) {
+            this.age = age;
             return this;
         }
 
-        private com.querydsl.core.types.Expression<Long> deliveryId;
-
-        public Builder deliveryId(com.querydsl.core.types.Expression<Long> deliveryId) {
-            this.deliveryId = deliveryId;
-            return this;
+        public KcQCustomerDTO build() {
+            return new KcQCustomerDTO(this);
         }
 
-        private com.querydsl.core.types.Expression<String> field;
+        public Map<String, Expression<?>> buildBindings() {
+            Map<String, Expression<?>> bindings = new LinkedHashMap<>();
+            bindings.put("id", this.id);
+            bindings.put("loginId", this.loginId);
+            bindings.put("password", this.password);
+            bindings.put("name", this.name);
+            bindings.put("age", this.age);
 
-        public Builder field(com.querydsl.core.types.Expression<String> field) {
-            this.field = field;
-            return this;
-        }
-
-        private com.querydsl.core.types.Expression<Long> orderId;
-
-        public Builder orderId(com.querydsl.core.types.Expression<Long> orderId) {
-            this.orderId = orderId;
-            return this;
-        }
-
-        public KcQSimpleDTO build() {
-            return new KcQSimpleDTO(this);
+            return bindings;
         }
 
     }
@@ -186,31 +164,27 @@ public class KcQSimpleDTO extends KcQBean<SimpleDTO> {
 }
 ```
 
-이렇게 되면 필드를 추가해도 기존의 코드에 영향을 주지 않고 런타임에 오류도 잡을수 있고 builder, setter를 사용할수 있게 됩니다.
+이렇게 되면 필드를 추가해도 기존의 코드에 영향을 주지 않고 런타임에 오류도 잡을수 있고 builder 패턴으로 projection을 생성할 수 있습니다. 물론 바인딩 객체를 만드는것이 type-safe하진 않지만 클래스를 만드는 시점 (컴파일 시점)에 에러가 발생하기 때문에 적어도 런타임에 오류가 발생하는건 막을 수 있게 됩니다.
 
-조회할때는 이런식으로 조회할 수 있습니다. (아래 사용된 repository는 JPARepository를 상속받은 것이 아닌 제가 만든 repository 입니다.)
+조회할때는 이런식으로 조회할 수 있습니다.
+
 ```java
-@Test
-public void queryTest() {
-    var q = Q.delivery;
+var q = QCustomer.customer;
 
-    var deliveryDTO = new KcQDeliveryDTO();
-    deliveryDTO.setFromAddress(q.fromAddress);
-    deliveryDTO.setFromName(q.fromName);
-    deliveryDTO.setFromNumber(q.fromNumber);
-    deliveryDTO.build();
+var bindings = KcQCustomerDTO.builder()
+        .id(q.id)
+        .name(q.name)
+        .loginId(q.loginId)
+        .build();
 
-    var simpleDTO = KcQSimpleDTO.builder()
-            .orderId(q.order.orderId)
-            .deliveryId(q.deliveryId)
-            .field(q.fromAddress)
-            .deliveryDTO(deliveryDTO.build())
-            .build();
+var predicate = new BooleanBuilder();
+predicate.and(q.name.contains("김"));
 
-    var list = deliveryRepository.selectList(null, simpleDTO);
-
-    System.out.println(list.size());
-}
+var list = jpaQueryFactory
+        .select(bindings)
+        .from(q)
+        .where(predicate)
+        .fetch();
 ```
 
 ## **다음 포스팅에서...**
