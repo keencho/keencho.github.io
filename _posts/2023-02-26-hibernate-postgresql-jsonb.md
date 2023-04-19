@@ -199,7 +199,7 @@ entityManager.createNativeQuery("SELECT * FROM order_new o WHERE o.frominfo ->> 
 ```
 
 ### **Hibernate >= 6.2**
-Hibernate 6.2 버전에서 드디어 JPQL로 JSONB 컬럼을 탐색할 수 있게 되었습니다. 정확히는 [`Embeddable` 객체(클래스)를 JSON 컬럼으로써 매핑](https://in.relation.to/2023/02/13/hibernate-orm-62-composite-aggregates/) 할수 있게 되었습니다.  
+Hibernate 6.2 버전에서 드디어 JPQL로 JSONB 컬럼을 탐색할 수 있게 되었습니다. 정확히는 [`Embeddable` 객체(클래스)를 JSON 컬럼으로써 매핑](https://in.relation.to/2023/02/13/hibernate-orm-62-composite-aggregates/) 할수 있게 되었습니다.
 
 ```java
 @Data
