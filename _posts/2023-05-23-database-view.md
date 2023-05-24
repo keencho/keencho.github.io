@@ -155,4 +155,4 @@ FROM sales;
 데이터베이스 뷰의 중요성을 인지하고, 적절한 상황에서 뷰를 적용하여 데이터베이스 작업을 더욱 효율적으로 수행할 수 있도록 노력해보세요. 데이터베이스 뷰는 데이터의 가시성과 일관성을 제공하며, 데이터 관리와 분석의 효율성을 높여줄 것입니다.
 
 # **끄적끄적..**
-이 글은 **[Hibernate 'introduce @View annotation' PR](https://github.com/hibernate/hibernate-orm/pull/6614)**을 보고 삘받아서 정리한 글입니다. 2023년에 ORM에서 뷰를 사용할수 있게 될수도 있다는 것에 좋아하는게 맞나 모르겠지만... 일단은 좋습니다. 나오면 얼른 사용해보고 싶네요.
+이 글은 [Hibernate 'introduce @View annotation' PR](https://github.com/hibernate/hibernate-orm/pull/6614)을 보고 삘받아서 정리한 글입니다. 2023년에 ORM에서 뷰를 사용할수 있게 될수도 있다는 것에 좋아하는게 맞나 모르겠지만... 일단은 좋습니다. 나오면 얼른 사용해보고 싶네요.
