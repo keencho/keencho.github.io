@@ -1,7 +1,7 @@
 ---
 title: DB 뷰(View)
 author: keencho
-date: 2023-05-15 08:12:00 +0900
+date: 2023-05-23 08:12:00 +0900
 categories: [Database]
 tags: [Database, PostgreSQL]
 ---
