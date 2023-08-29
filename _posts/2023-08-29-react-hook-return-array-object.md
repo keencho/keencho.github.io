@@ -24,7 +24,7 @@ const { table, selection } = useTable();
 이 둘의 차이점을 살펴보자.
 
 ## **2. 차이점?**
-사실 어떤것을 선택하던 훅이 수행하는 행위의 차이점은 없다.
+어떤것을 선택하던 훅이 수행하는 행위의 차이점은 없다.
 
 리턴타입으로 배열을 사용하는 경우, 동일 훅을 같은 컴포넌트 함수 내에서 N번 사용하는 경우 배열은 순서에 기반하기 때문에 객체 형태에 비해 코드량이 줄어드는 장점(?) 이 있다.
 
@@ -47,7 +47,7 @@ const [v1, _1, _2, _3, v2] = useCustomHook();
 위와같이 실제 사용하는 속성은 v1, v2 임에도 순서를 유지하기 위해 불필요한 변수를 할당해야 하는 것이다.
 
 ## **3. 그래서?**
-사실 [공식 문서](https://legacy.reactjs.org/docs/hooks-custom.html) 에서는 다음과 같이 설명하고 있다.
+[공식 문서](https://legacy.reactjs.org/docs/hooks-custom.html) 에서는 다음과 같이 설명하고 있다.
 
 > Unlike a React component, a custom Hook doesn’t need to have a specific signature. We can decide what it takes as arguments, and what, if anything, it should return. In other words, it’s just like a normal function. Its name should always start with use so that you can tell at a glance that the rules of Hooks apply to it.
 
