@@ -1,12 +1,12 @@
 ---
-title: Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 1. 개요
+title: Terraform으로 AWS 무중단 배포 인프라 구성하기 - 1. 개요
 author: keencho
 date: 2023-12-09 08:12:00 +0900
 categories: [AWS, Terraform]
 tags: [AWS, ECS]
 ---
 
-# **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 1. 개요**
+# **Terraform으로 AWS 무중단 배포 인프라 구성하기 - 1. 개요**
 최근 오픈하는 시스템을 ECS 기반 인프라로 변경하였다. 도입시 겪었던 시행착오나 기타 문제를 다시한번 정리하며 무중단 배포 인프라를 구성해본다.
 
 AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 인프라를 관리하기 위해 IaC중 하나인 [Terraform](https://www.terraform.io/) 을 사용한다. Terraform이 무엇인지는 자세하게 설명하진 않겠으나 필요시 간단하게 짚고 넘어가도록 한다.
