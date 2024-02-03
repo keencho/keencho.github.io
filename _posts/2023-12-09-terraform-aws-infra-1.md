@@ -17,20 +17,20 @@ AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 �
 구성할 인프라를 간단하게 설명하면 다음과 같다. 도메인은 내가 보유중인 keencho.com 도메인을 사용한다.
 
 1. Route 53은 다음 도메인의 트래픽을 각각 라우팅한다.
-   - app-admin.keencho.com (관리자 - CloudFront)
-   - app-user.keencho.com (사용자 - CloudFront)
-   - app-admin-test.keencho.com (관리자 테스트 - Application Load Balancer)
-   - app-user-test.keencho.com (사용자 테스트 - Application Load Balancer)
-   - app-resources.keencho.com (리소스 - CloudFront)
+  - app-admin.keencho.com (관리자 - CloudFront)
+  - app-user.keencho.com (사용자 - CloudFront)
+  - app-admin-test.keencho.com (관리자 테스트 - Application Load Balancer)
+  - app-user-test.keencho.com (사용자 테스트 - Application Load Balancer)
+  - app-resources.keencho.com (리소스 - CloudFront)
 2. CloudFront
-   - 운영 트래픽, 리스소 트래픽을 담당
-   - 운영 트래픽의 `/api/**` 경로로 시작하는 요청의 경우 Application Load Balancer로 전달한다.
-   - `/api/**` 경로로 시작하지 않는 운영 요청은 react 앱이 배포되어 있는 s3 버켓으로 전송한다.
-   - 리소스 트래픽은 리소스 s3 버켓으로 전송한다.
+  - 운영 트래픽, 리스소 트래픽을 담당
+  - 운영 트래픽의 `/api/**` 경로로 시작하는 요청의 경우 Application Load Balancer로 전달한다.
+  - `/api/**` 경로로 시작하지 않는 운영 요청은 react 앱이 배포되어 있는 s3 버켓으로 전송한다.
+  - 리소스 트래픽은 리소스 s3 버켓으로 전송한다.
 3. Application Load Balancer
-   - 테스트 트래픽, 운영 api 트래픽 담당
-   - 테스트 트래픽은 2a 퍼블릭 서브넷에 위치하는 test + bastion 인스턴스로 전달
-   - 운영 api 트래픽은 ECS Fargate 로 전송한다.
+  - 테스트 트래픽, 운영 api 트래픽 담당
+  - 테스트 트래픽은 2a 퍼블릭 서브넷에 위치하는 test + bastion 인스턴스로 전달
+  - 운영 api 트래픽은 ECS Fargate 로 전송한다.
 4. RDS - 운영 db는 RDS를 사용한다.
 5. EFS - 어플리케이션 로그를 쌓기위한 용도로 EFS 를 사용한다.
 6. ECR - 빌드한 도커 이미지를 저장하기 위해 ECR을 사용한다.
@@ -41,7 +41,17 @@ AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 �
 ## **인프라 다이어그램**
 위 구성을 다이어그램으로 표현해보면 다음과 같다.
 
-![서버구성도](/assets/img/custom/terraform-aws-ecs-infra/서버구성도.png)
+![서버구성도](/assets/img/custom/terraform-aws-infra/structure.png)
+
+## **기타**
+이 시리즈에서는 `Terraform`, `AWS CLI` 가 무엇인지 등은 설명하지 않는다.
+```terraform
+terraform apply
+terraform plan
+terraform destroy
+```
+
+위와 같은 명령어들도 마찬가지로 무엇인지는 설명하지 않으며 IaC, CLI 등에 기초 지식이 있다는 가정 하에 진행한다.
 
 
 
