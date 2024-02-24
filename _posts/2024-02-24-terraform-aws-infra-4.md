@@ -13,6 +13,8 @@ tags: [AWS, ECS]
 
 테스트 환경의 트래픽은 `Route53 -> Application Load Balancer -> EC2` 로 전송된다.
 
+테스트 환경은 무중단 배포를 고려하지 않는다.
+
 ## **리소스**
 ### **1. Application Load Balancer**
 먼저 로드밸런서를 생성한다. 로드밸런서는 퍼블릭 서브넷을 가용영역으로 두어야 한다. 또한 80 포트와 443 포트를 개방하도록 하겠다.
