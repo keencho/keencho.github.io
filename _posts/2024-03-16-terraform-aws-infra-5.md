@@ -1,23 +1,19 @@
 ---
-title: Terraform으로 AWS 무중단 배포 인프라 구성하기 - 4. 테스트 환경
+title: Terraform으로 AWS 무중단 배포 인프라 구성하기 - 5. 운영환경 (프론트)
 author: keencho
-date: 2024-02-24 08:12:00 +0900
+date: 2024-03-16 08:12:00 +0900
 categories: [AWS, Terraform]
 tags: [AWS, ECS]
 ---
 
-# **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 4. 테스트 환경**
-이번 포스팅에서는 테스트 환경을 구성한다. 테스트 환경은 운영환경과는 다르게 백엔드, 프론트엔드, db가 모두 1개의 인스턴스에서 돌아가게 구성한다.
+# **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 5. 운영환경 (프론트)**
+이번 포스팅 부터는 운영 환경을 구성한다. 먼저 프론트에 해당하는 부분부터 구성해 보도록 한다.
 
-당연히 실제 비즈니스 서비스의 경우 실제 운영환경과 동일하게 환경을 구성해야 겠지만 이 시리즈에서는 그렇게까지 하진 않는다. ec2, key-pair등과 같은 리소스도 Terraform으로 생성해보기 위함이다.
-
-테스트 환경의 트래픽은 `Route53 -> Application Load Balancer -> EC2` 로 전송된다.
-
-테스트 환경은 무중단 배포를 고려하지 않는다.
+순서는 `S3 버킷 생성 -> 앱 배포 -> CloudFront 배포 생성 -> CloudFront, S3 연결 -> Route53, CloudFront 연결`이 되겠다.
 
 ## **리소스**
-### **1. Application Load Balancer**
-먼저 로드밸런서를 생성한다. 로드밸런서는 퍼블릭 서브넷을 가용영역으로 두어야 한다. 또한 80 포트와 443 포트를 개방하도록 하겠다.
+### **1. S3 버킷**
+먼저 S3 버킷을 생성한다.
 
 ```terraform
 resource "aws_lb" "app-alb" {
