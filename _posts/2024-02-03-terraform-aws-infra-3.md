@@ -264,3 +264,81 @@ resource "aws_route_table_association" "rt-private-db-association" {
 
 VPC 콘솔로 들어가 리소스 맵을 확인해 보자. 위와같이 리소스가 구성되어 있으면 된다. 더욱더 확실하게 확인하려면 각각의 리소스 콘솔로 이동하여 확인해보자.
 
+## **Route 53 & SSL 인증서**
+원할한 진행을 위해 Route 53 호스팅 영억을 생성하고 AWS Certificate Manager를 통해 SSL 인증서를 발급받아 두도록 하겠다. (추후 CloudFront 구성시 대체 도메인을 연결해야 하는데, 이때 SSL 인증서가 필수이다.)
+
+각각의 record는 그때그때 추가하도록 한다.
+
+```terraform
+resource "aws_route53_zone" "keencho" {
+  name = "keencho.com"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Name = "app-keencho-route53"
+  }
+}
+
+resource "aws_route53_record" "app-certificate-validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.ssl-certificate.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.keencho.id
+}
+```
+
+```terraform
+resource "aws_acm_certificate" "ssl-certificate" {
+  domain_name       = "*.keencho.com"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "ssl-certificate-validation" {
+  certificate_arn         = aws_acm_certificate.ssl-certificate.arn
+  validation_record_fqdns = [for record in aws_route53_record.app-certificate-validation : record.fqdn]
+}
+```
+
+AWS Certificate Manager에 SSL 인증서를 추가하고 Route 53 CNAME 레코드를 통해 손쉽게 검증할 수 있다.
+
+주의할 점이 있다. 현 시점 생성된 SSL 인증서는 서울 리전 (ap-northeast-2)에 존재한다. 추후 CloudFront 생성시에는 버지니아 북부 (us-east-1) 에 존재하는 SSL 인증서만 사용할 수 있다. 따라서 us-ease-1 리전에도 인증서를 추가해 주도록 하겠다.
+
+```terraform
+provider "aws" {
+  alias  = "us-east-1"
+  region = "us-east-1"
+}
+
+resource "aws_acm_certificate" "ssl-certificate-virginia" {
+  domain_name       = "*.keencho.com"
+  validation_method = "DNS"
+  provider = aws.us-east-1
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
+어떤 로직이 숨겨져 있는지 모르겠지만 위 인증서도 앞서 진행한 'ssl-certificate-validation' 검증을 통해 검증받을 수 있다. (별도의 검증 리소스 블락이 필요하지 않음.) 따라서 생성후 조금만 기다리면 상태가 변경됨을 확인할 수 있다.
+
+만약 도메인을 외부 도메인 업체 (가비아, 후이즈 등) 에서 구매하였다면 해당 업체 관리화면으로 이동해 네임서버를 AWS가 생성한 네임서버로 변경하도록 하자. 변경하지 않으면 무용지물이다.
+
+

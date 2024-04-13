@@ -190,16 +190,33 @@ resource "aws_lb_target_group" "app-test" {
 ```
 
 #### **3.2 Listener**
-로드밸런서 리스너를 생성한다. 이 포스팅에서는 https 프로토콜은 허용하지 않는다. 당연히 실제 운영환경에는 SSL 인증서를 적용해 https 프로토콜만 허용해야 한다.
+로드밸런서 리스너를 생성한다. 80포트의 경우 443 포트로 리다이렉트 시킨다. 443 포트의 경우 앞서 AWS Certificate Manager 에서 생성한 ssl 인증서를 적용하고 대상그룹으로 트래픽을 포워딩한다.
 
 ```terraform
-resource "aws_lb_listener" "app-alb-listener" {
+resource "aws_lb_listener" "app-alb-listener-http" {
   load_balancer_arn = aws_lb.app-alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
+    type             = "redirect"
+
+    redirect {
+      port = "443"
+      protocol = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "app-alb-listener-https" {
+  load_balancer_arn = aws_lb.app-alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  certificate_arn = aws_acm_certificate.ssl-certificate.arn
+
+  default_action {
+    type = "forward"
     target_group_arn = aws_lb_target_group.app-test.arn
   }
 }
@@ -221,7 +238,7 @@ resource "aws_lb_target_group_attachment" "app-test-attachment" {
 
 ```terraform
 resource "aws_lb_listener_rule" "app-alb-test-rule" {
-  listener_arn = aws_lb_listener.app-alb-listener.arn
+  listener_arn = aws_lb_listener.app-alb-listener-https.arn
   priority = 1
 
   action {
@@ -239,22 +256,10 @@ resource "aws_lb_listener_rule" "app-alb-test-rule" {
 
 > :warning: 이 단계에서는 대상 그룹에 등록된 대상의 상태가 Unhealthy로 표시될 것입니다. 이는 인스턴스 내부에서 세팅해주지 않았기 때문이며 다음에 바로 설정해 보도록 하겠습니다.
 
-### **4. Route53**
-만약 CloudFront를 사용하지 않고 로드밸런서로 모든 트래픽을 라우팅할 것이라면 Route53은 필요 없지만, 이 시리즈에서는 CloudFront를 사용해 트래픽을 1차적으로 라우팅할 것이다. 따라서 Route53이 필요하므로 미리 생성해 두도록 하자. 나중에 운영환경 구성할때 필요한 항목들은 그때 추가하도록 한다.
+### **4. Route 53 Record**
+Route 53 에 레코드를 추가한다. 각 테스트 도메인으로 들어오는 트래픽이 alb로 향할수 있도록 설정할 것이다.
 
 ```terraform
-resource "aws_route53_zone" "keencho" {
-  name = "keencho.com"
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  tags = {
-    Name = "app-keencho-route53"
-  }
-}
-
 resource "aws_route53_record" "app-admin-test" {
   zone_id = aws_route53_zone.keencho.id
   name    = "app-admin-test.keencho.com"
@@ -280,10 +285,6 @@ resource "aws_route53_record" "app-user-test" {
 }
 ```
 
-Route53 존과 레코드를 생성하였다. 호스팅 영역으로 들어가면 네임서버를 확인할 수 있다. 만약 도메인을 외부 도메인 업체 (가비아, 후이즈 등) 에서 구매하였다면 해당 업체 관리화면으로 이동해 네임서버를 AWS가 생성한 네임서버로 변경하도록 하자. 변경하지 않으면 무용지물이다.
-
-레코드를 통해 테스트 도메인의 트래픽을 로드밸런서로 라우팅 할수 있도록 하였다.
-
 테스트 환경을 위해 AWS에서 설정해 줘야할 것은 끝났다. 나머지는 테스트 인스턴스에 직접 접속해서 진행해야 한다.
 
 ### **5. EC2 설정**
@@ -304,6 +305,8 @@ Route53 존과 레코드를 생성하였다. 호스팅 영역으로 들어가면
 
 이 단계까지 진행하였다면 대상그룹이 `Healthy` 상태로 변경되었는지 확인해보자. 변경되었다면 실제 도메인으로 접속해 기능이 정상적으로 동작하는지 확인해보면 된다.
 
-![test](/assets/img/custom/terraform-aws-infra/test-complete.png)
+![test admin](/assets/img/custom/terraform-aws-infra/test-complete1.png)
+
+![test user](/assets/img/custom/terraform-aws-infra/test-complete2.png)
 
 
