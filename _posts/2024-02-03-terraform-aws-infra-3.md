@@ -13,7 +13,7 @@ tags: [AWS, ECS]
 
 시작하기전 기초 코드를 작성한다.
 
-```terraform
+```hcl
 # main.tf
 terraform {
   required_providers {
@@ -53,7 +53,7 @@ variable "app_project_name" {
 ## **변수**
 확장성(?) 을 위해 [변수](https://developer.hashicorp.com/terraform/language/values/variables)를 적극적으로 활용한다.
 
-```terraform
+```hcl
 variable "aws_region" {
   description = "The AWS region to deploy the VPC in"
   type        = string
@@ -93,7 +93,7 @@ variable "db_subnet_cidrs" {
 
 위 변수들은 네트워크 리소스 생성에 필요한 변수들이다. 이 예제에서는 a, b 2개의 가용존을 사용한다. 만약 a, b, c, d 모두 사용하고 싶다면
 
-```terraform
+```hcl
 variable "availability_zones" {
   description = "List of availability zones to use"
   type        = list(string)
@@ -105,7 +105,7 @@ variable "availability_zones" {
 
 ## **리소스**
 ### **1. VPC**
-```terraform
+```hcl
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
@@ -119,7 +119,7 @@ resource "aws_vpc" "vpc" {
 첫번째로 VPC를 생성한다.
 
 ### **2. Internet Gateway**
-```terraform
+```hcl
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
@@ -131,7 +131,7 @@ resource "aws_internet_gateway" "igw" {
 다음으로 퍼블릭 서브넷에 붙일 용도로 Internet Gateway를 생성한다.
 
 ### **3. NAT Gateway**
-```terraform
+```hcl
 resource "aws_eip" "nat" {
   count = length(var.public_subnet_cidrs)
   vpc   = true
@@ -156,7 +156,7 @@ resource "aws_nat_gateway" "nat" {
 다음으로 프라이빗 서브넷에 붙일 용도로 NAT Gateway를 생성한다. NAT Gateway는 탄력적 ip를 필요로 하기 때문에 이 또한 생성한다.
 
 ### **4. Routing Table**
-```terraform
+```hcl
 resource "aws_route_table" "rt-public" {
   vpc_id = aws_vpc.vpc.id
 
@@ -200,7 +200,7 @@ resource "aws_route" "route-private" {
 > :warning: VPC 생성시 AWS는 기본적으로 라우팅 테이블을 하나 생성한다. 위 구성에서 생성한 라우팅 테이블과는 전혀 관련없는 라우팅 테이블이다. 뭔가 깔끔(?) 하게 구성하려면 콘솔에서 혹은 CLI로 직접 해당 라우팅 테이블을 삭제하면 된다. (Terraform 차원에서는 살짝 어려운듯 하다.) 여기서는 진행하지 않는다.
 
 ### **5. Subnet**
-```terraform
+```hcl
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidrs)
   vpc_id                  = aws_vpc.vpc.id
@@ -238,7 +238,7 @@ resource "aws_subnet" "private-db" {
 한개의 퍼블릭 서브넷과 4개의 프라이빗 서브넷 (2 for app, 2 for db)을 생성한다.
 
 ### **6. Subnet Association**
-```terraform
+```hcl
 resource "aws_route_table_association" "rt-public-association" {
   count          = length(var.public_subnet_cidrs)
   subnet_id      = element(aws_subnet.public[*].id, count.index)
@@ -269,7 +269,7 @@ VPC 콘솔로 들어가 리소스 맵을 확인해 보자. 위와같이 리소�
 
 각각의 record는 그때그때 추가하도록 한다.
 
-```terraform
+```hcl
 resource "aws_route53_zone" "keencho" {
   name = "keencho.com"
 
@@ -300,7 +300,7 @@ resource "aws_route53_record" "app-certificate-validation" {
 }
 ```
 
-```terraform
+```hcl
 resource "aws_acm_certificate" "ssl-certificate" {
   domain_name       = "*.keencho.com"
   validation_method = "DNS"
@@ -320,7 +320,7 @@ AWS Certificate Manager에 SSL 인증서를 추가하고 Route 53 CNAME 레코�
 
 주의할 점이 있다. 현 시점 생성된 SSL 인증서는 서울 리전 (ap-northeast-2)에 존재한다. 추후 CloudFront 생성시에는 버지니아 북부 (us-east-1) 에 존재하는 SSL 인증서만 사용할 수 있다. 따라서 us-ease-1 리전에도 인증서를 추가해 주도록 하겠다.
 
-```terraform
+```hcl
 provider "aws" {
   alias  = "us-east-1"
   region = "us-east-1"

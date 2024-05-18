@@ -15,7 +15,7 @@ tags: [AWS, ECS]
 ### **1. S3 버킷**
 먼저 S3 버킷을 생성한다.
 
-```terraform
+```hcl
 resource "aws_s3_bucket" "app-prod-react" {
   bucket = "app-prod-react"
 
@@ -60,7 +60,7 @@ resource "aws_s3_object" "app-prod-react-user" {
 이 상태에서 버킷을 퍼블릭 액세스로 열어버리고 주소로 접근하면 웹 페이지가 뜬다. 그러나 앞단에 `CloudFront`를 두어 그곳에서 s3로 라우팅할 것이기 때문에 넘어간다.
 
 ### **2. CloudFront**
-```terraform
+```hcl
 resource "aws_cloudfront_origin_access_control" "admin-front" {
   name                              = "admin-front"
   description                       = "admin front"
@@ -130,7 +130,7 @@ resource "aws_cloudfront_distribution" "admin-distribution" {
 
 현 시점엔 라우팅되는 모든 트래픽이 s3 버킷의 `/admin` 폴더로 전송된다.
 
-```terraform
+```hcl
 resource "aws_route53_record" "app-admin" {
   zone_id = aws_route53_zone.keencho.id
   name    = "app-admin.keencho.com"
@@ -153,7 +153,7 @@ Route 53 레코드를 생성하여 `app-admin.keencho.com` 으로 들어오는 �
 
 `CloudFront` 에서 온 요청은 허용하는 정책을 적용한다.
 
-```terraform
+```hcl
 resource "aws_s3_bucket_policy" "allow-from-cloudfront-policy" {
   bucket = aws_s3_bucket.app-prod-react.id
 

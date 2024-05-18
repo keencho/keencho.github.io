@@ -45,7 +45,7 @@ AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 �
 
 ## **기타**
 이 시리즈에서는 `Terraform`, `AWS CLI` 가 무엇인지 등은 설명하지 않는다.
-```terraform
+```hcl
 terraform apply
 terraform plan
 terraform destroy
