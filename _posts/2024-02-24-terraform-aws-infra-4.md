@@ -6,6 +6,15 @@ categories: [AWS, Terraform]
 tags: [AWS, ECS]
 ---
 
+# **Terraform으로 AWS 무중단 배포 인프라 구성하기**
+1. [개요](/posts/terraform-aws-infra-1)
+2. [기초](/posts/terraform-aws-infra-2)
+3. [네트워크](/posts/terraform-aws-infra-3)
+4. **테스트 환경**
+5. [운영환경 (프론트)](/posts/terraform-aws-infra-5)
+6. [운영환경 (백엔드)](/posts/terraform-aws-infra-6)
+7. [마무리](/posts/terraform-aws-infra-7)
+
 # **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 4. 테스트 환경**
 이번 포스팅에서는 테스트 환경을 구성한다. 테스트 환경은 운영환경과는 다르게 백엔드, 프론트엔드, db가 모두 1개의 인스턴스에서 돌아가게 구성한다.
 
