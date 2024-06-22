@@ -18,7 +18,7 @@ tags: [AWS, ECS]
 # **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 3. 네트워크**
 이번 포스팅부터 본격적으로 AWS 리소스를 생성한다. 그 첫번째로 인프라 구성에 가장 기본이 되는 네트워크 관련 리소스(vpc, subnet 등...)부터 생성한다.
 
-이 글에선 vpc, subnet등이 무엇인지 설명하진 않는다. [이 시리즈](https://keencho.github.io/posts/aws-cicd-1/) 를 따라가다 보면 개념들을 확인할 수 있으니 모르시는 분들은 읽어보시길 바란다.
+이 글에선 vpc, subnet등이 무엇인지 설명하진 않는다. [이 시리즈](https://keencho.github.io/posts/aws-cicd-1/) 를 따라가다 보면 개념들을 확인할 수 있으니 모르시는 분들은 읽어보시기 바란다.
 
 시작하기전 기초 코드를 작성한다.
 
@@ -60,7 +60,7 @@ variable "app_project_name" {
 전역적으로 `Project` 태그를 세팅하였다. 한 계정에 프로젝트가 1개이면 상관없지만, 프로젝트가 N개라면 프로젝트를 분리하여 지정했을 시 프로젝트 별로 비용을 확인할 수 있기 때문에 편리하다.
 
 ## **변수**
-확장성(?) 을 위해 [변수](https://developer.hashicorp.com/terraform/language/values/variables)를 적극적으로 활용한다.
+[변수](https://developer.hashicorp.com/terraform/language/values/variables)를 활용한다.
 
 ```hcl
 variable "aws_region" {

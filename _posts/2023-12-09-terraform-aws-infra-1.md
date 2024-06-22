@@ -34,15 +34,15 @@ AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 �
 2. CloudFront
   - 운영 트래픽, 리스소 트래픽을 담당
   - 운영 트래픽의 `/api/**` 경로로 시작하는 요청의 경우 Application Load Balancer로 전달한다.
-  - `/api/**` 경로로 시작하지 않는 운영 요청은 react 앱이 배포되어 있는 s3 버켓으로 전송한다.
-  - 리소스 트래픽은 리소스 s3 버켓으로 전송한다.
+  - `/api/**` 경로로 시작하지 않는 운영 요청은 react 앱이 배포되어 있는 s3 버킷으로 전송한다.
+  - 리소스 트래픽은 리소스 s3 버킷으로 전송한다.
 3. Application Load Balancer
-  - 테스트 트래픽, 운영 api 트래픽 담당
+  - 테스트 트래픽, 운영 api 트래픽 담당 (도메인에 따라 분기)
   - 테스트 트래픽은 2a 퍼블릭 서브넷에 위치하는 test + bastion 인스턴스로 전달
   - 운영 api 트래픽은 ECS Fargate 로 전송한다.
 4. RDS - 운영 db는 RDS를 사용한다.
 5. EFS - 어플리케이션 로그를 쌓기위한 용도로 EFS 를 사용한다.
-6. ECR - 빌드한 도커 이미지를 저장하기 위해 ECR을 사용한다.
+6. ECR - 빌드한 도커  위이미지를 저장하기해 ECR을 사용한다.
 7. CodeDeploy - 운영 앱 배포를 위해 CodeDeploy를 사용한다.
 
 프론트단은 React, 백단은 SpringBoot를 사용하며 DB는 PostgreSQL을 사용한다.

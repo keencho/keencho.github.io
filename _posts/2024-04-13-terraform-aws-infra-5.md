@@ -16,9 +16,7 @@ tags: [AWS, ECS]
 7. [마무리](/posts/terraform-aws-infra-7)
 
 # **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 5. 운영환경 (프론트)**
-이번 포스팅 부터는 운영 환경을 구성한다. 먼저 프론트에 해당하는 부분부터 구성해 보도록 한다.
-
-순서는 `S3 버킷 생성 -> 앱 배포 -> CloudFront 배포 생성 -> CloudFront, S3 연결 -> Route53, CloudFront 연결 -> 배포 스크립트 작성`이 되겠다.
+프론트 운영환경을 구축한다.
 
 ## **리소스**
 ### **1. S3 버킷**
@@ -246,16 +244,15 @@ jobs:
           aws-region: {% raw %}${{ secrets.AWS_REGION }}{% endraw %}
 
       - name: Remove Exist & Upload New to S3
+        working-directory: react
         run: |
           aws s3 rm s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/admin --recursive
           aws s3 rm s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/user --recursive
-          aws s3 cp react/app/admin/dist s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/admin --recursive
-          aws s3 cp react/app/user/dist s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/user --recursive
+          aws s3 cp app/admin/dist s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/admin --recursive
+          aws s3 cp app/user/dist s3://{% raw %}${{ secrets.S3_BUCKET_NAME }}{% endraw %}/user --recursive
 
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation --distribution-id {% raw %}${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_ADMIN }}{% endraw %} --paths "/*"
           aws cloudfront create-invalidation --distribution-id {% raw %}${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_USER }}{% endraw %} --paths "/*"
 ```
-
-react 프로젝트와 위 스크립트는 [이곳](https://github.com/keencho/aws-infra-terraform-example) 에서 확인할 수 있다.

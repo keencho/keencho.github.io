@@ -811,6 +811,7 @@ resource "aws_codedeploy_deployment_group" "app-deploy-group" {
 - 어플리케이션 생성
 - CodeDeploy 관련 IAM Role 생성
 - 배포그룹 생성
+- 로드밸런서 지정 (Blue / Green 배포를 위해 앞에서 생성한 타겟그룹 1, 2 지정)
 
 ### **6. Github Actions 배포 스크립트 작성**
 내가 사용한 Dockerfile이다.
@@ -874,9 +875,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: {% raw %}${{ secrets.AWS_ACCESS_KEY_ID }}{% endraw %}
+          aws-secret-access-key: {% raw %}${{ secrets.AWS_SECRET_ACCESS_KEY }}{% endraw %}
+          aws-region: {% raw %}${{ secrets.AWS_REGION }}{% endraw %}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -885,7 +886,7 @@ jobs:
       - name: Build, tag and push image to Amazon ECR
         working-directory: spring-boot
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: {% raw %}${{ steps.login-ecr.outputs.registry }}{% endraw %}
         run: |
          docker build --build-arg JAR_PATH=app-admin/build/libs/*.jar --platform=linux/arm64 -t $ECR_REGISTRY/app-ecr:admin-latest -f app-admin/Dockerfile .
          docker build --build-arg JAR_PATH=app-user/build/libs/*.jar --platform=linux/arm64 -t $ECR_REGISTRY/app-ecr:user-latest -f app-user/Dockerfile .
@@ -898,9 +899,9 @@ jobs:
       - name: CodeDeploy Blue / Green Deployment
         working-directory: spring-boot
         run: |
-          APPLICATION_NAME="${{ secrets.AWS_CODEDEPLOY_APPLICATION_NAME }}"
-          DEPLOYMENT_GROUP="${{ secrets.AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME }}"
-          REGION="${{ secrets.AWS_REGION }}"
+          APPLICATION_NAME="{% raw %}${{ secrets.AWS_CODEDEPLOY_APPLICATION_NAME }}{% endraw %}"
+          DEPLOYMENT_GROUP="{% raw %}${{ secrets.AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME }}{% endraw %}"
+          REGION="{% raw %}${{ secrets.AWS_REGION }}"
           REVISION_JSON='{
             "version": 1,
             "Resources": [
@@ -908,7 +909,7 @@ jobs:
                 "TargetService": {
                   "Type": "AWS::ECS::Service",
                   "Properties": {
-                    "TaskDefinition": "${{ secrets.AWS_CODEDEPLOY_TASK_DEFINITION }}",
+                    "TaskDefinition": "${{ secrets.AWS_CODEDEPLOY_TASK_DEFINITION }}{% endraw %}",
                     "LoadBalancerInfo": {
                       "ContainerName": "nginx",
                       "ContainerPort": 80
