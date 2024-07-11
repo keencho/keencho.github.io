@@ -62,7 +62,7 @@ terraform destroy
 
 위와 같은 명령어들도 마찬가지로 무엇인지는 설명하지 않으며 IaC, CLI 등에 기초 지식이 있다는 가정 하에 진행한다.
 
-> :warning: Application Load Balancer에서 S3로 트래픽을 라우팅할수 있는 방법은 없다. 따라서 CloudFront에서 요청을 분기해야 하는데 이렇게 인프라를 구성하려면 Route 53 은 필수다. 아예 모든 리소스를 aws에서 구매하거나 본인이 소유한 도메인의 네임서버를 aws의 것으로 변경할 수 있어야 한다.
+> :warning: Application Load Balancer에서 S3로 트래픽을 라우팅할수 있는 방법은 없다. 따라서 CloudFront에서 요청을 분기해야 하는데 이렇게 인프라를 구성하려면 Route 53 은 필수다. 아예 모든 리소스를 aws에서 구매하거나 본인이 소유한 도메인의 네임서버를 aws의 것으로 변경할 수 있어야 한다. (혹은 도메인을 구매한 곳에서 CNAME 레코드를 설정할 수 있어야 한다.)
 
 
 
