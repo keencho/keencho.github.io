@@ -61,6 +61,8 @@ export const handler = async (event, context) => {
 };
 ```
 
+다음은
+
 ### **EventBridge 스케줄러 실행 요청 처리**
 첫번째는 EventBridge 스케줄러 실행 요청 처리이다. `Amazon EventBridge -> Scheduler -> 일정` 에서 설정하였으며 어떻게 설정하는지까지 설명하진 않는다. 나의 경우 30분마다 작동하게 설정하였으며, 다음과 같은 페이로드를 전달하도록 하였다.
 ```json
