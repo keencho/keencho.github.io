@@ -398,7 +398,7 @@ resource "aws_ecs_task_definition" "app-definition" {
 ```
 
 - 시작유형: Fargate
-- OS, 아키텍쳐: Linux/ARM64
+- OS, 아키텍처: Linux/ARM64
 - CPU: 2vCPU
 - 메모리: 2 GB
 - 볼륨: 앞에서 생성한 EFS 유형의 스토리지를 마운트, 루트 디렉토리는 `/`
@@ -934,7 +934,7 @@ jobs:
 5. configure aws credentials
 6. login ecr
 7. build, tag and push image to ecr
-   - OS, 아키텍쳐를 linux/arm64로 지정
+   - OS, 아키텍처를 linux/arm64로 지정
 8. CodeDeploy 배포 생성
    - 어플리케이션 지정
    - 배포 그룹 지정
