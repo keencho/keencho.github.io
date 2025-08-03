@@ -1,57 +1,54 @@
 <!--
-  mermaid-js loader
+  mermaid-js loader (v11, ESM) + AWS 아이콘 팩 (architecture-beta)
 -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 
-<script src="{{ site.data.assets[origin].mermaid.js | relative_url }}"></script>
+  /* architecture-beta 다이어그램용 AWS 아이콘 팩 (로컬 호스팅, 855개).
+     initialize 전에 등록해야 함. flowchart/sequence 엔 영향 없음. */
+  mermaid.registerIconPacks([{
+    name: 'aws',
+    loader: () =>
+      fetch('{{ "/assets/data/aws-icons.json" | relative_url }}').then((res) => res.json())
+  }]);
 
-<script>
-  $(function() {
-    function updateMermaid(event) {
-      if (event.source === window && event.data &&
-            event.data.direction === ModeToggle.ID) {
+  function themeNow() {
+    const m = document.documentElement.getAttribute('data-mode');
+    const dark =
+      m === 'dark' ||
+      (m === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return dark ? 'dark' : 'default';
+  }
 
-        const mode = event.data.message;
+  /* Markdown 코드블록(```mermaid)을 .mermaid div 로 옮긴다.
+     원본 소스를 data-source 에 보관 — 다크모드 토글 시 재렌더에 사용. */
+  document.querySelectorAll('pre > code.language-mermaid').forEach((code) => {
+    const pre = code.parentElement;
+    const src = code.textContent;
+    const div = document.createElement('div');
+    div.className = 'mermaid';
+    div.dataset.source = src;
+    div.textContent = src;
+    pre.classList.add('unloaded');
+    pre.after(div);
+  });
 
-        if (typeof mermaid === "undefined") {
-          return;
-        }
-
-        let expectedTheme = (mode === ModeToggle.DARK_MODE? "dark" : "default");
-        let config = { theme: expectedTheme };
-
-        /* Re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */
-        $(".mermaid").each(function() {
-          let svgCode = $(this).prev().children().html();
-          $(this).removeAttr("data-processed");
-          $(this).html(svgCode);
-        });
-
-        mermaid.initialize(config);
-        mermaid.init(undefined, ".mermaid");
-      }
-    }
-
-    let initTheme = "default";
-
-    if ($("html[data-mode=dark]").length > 0
-      || ($("html[data-mode]").length == 0
-        && window.matchMedia("(prefers-color-scheme: dark)").matches ) ) {
-      initTheme = "dark";
-    }
-
-    let mermaidConf = {
-      theme: initTheme  /* <default|dark|forest|neutral> */
-    };
-
-    /* Markdown converts to HTML */
-    $("pre").has("code.language-mermaid").each(function() {
-      let svgCode = $(this).children().html();
-      $(this).addClass("unloaded");
-      $(this).after(`<div class=\"mermaid\">${svgCode}</div>`);
+  async function renderAll() {
+    mermaid.initialize({ startOnLoad: false, theme: themeNow() });
+    document.querySelectorAll('div.mermaid').forEach((div) => {
+      div.removeAttribute('data-processed');
+      div.innerHTML = div.dataset.source;
     });
+    await mermaid.run({ querySelector: 'div.mermaid' });
+  }
 
-    mermaid.initialize(mermaidConf);
+  await renderAll();
 
-    window.addEventListener("message", updateMermaid);
+  /* 다크/라이트 토글 시 색이 따라오도록 재렌더 (Chirpy ModeToggle 메시지) */
+  window.addEventListener('message', (e) => {
+    const toggleId = typeof ModeToggle !== 'undefined' ? ModeToggle.ID : 'mode-toggle';
+    if (e.source === window && e.data && e.data.direction === toggleId) {
+      renderAll();
+    }
   });
 </script>
