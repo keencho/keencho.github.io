@@ -7,7 +7,7 @@ tags: [Spring, Transaction]
 ---
 
 # 트랜잭션 전파레벨
-Spring의 `@Transactional` 어노테이션에는 많은 옵션이 존재합니다. 저번에 알아본 [격리 레벨](https://keencho.github.io/posts/jpa-transaction-isolation-level/){:target="\_blank"} 도 그중 하나이지요. 이번에 알아볼 옵션은 `Propagation(전파레벨)` 옵션입니다.  
+Spring의 `@Transactional` 어노테이션에는 많은 옵션이 존재합니다. 저번에 알아본 [격리 레벨](https://blog.keencho.com/posts/jpa-transaction-isolation-level/){:target="\_blank"} 도 그중 하나이지요. 이번에 알아볼 옵션은 `Propagation(전파레벨)` 옵션입니다.  
 
 트랜잭션에서의 전파는 비즈니스 로직의 트랜잭션 경계를 정의합니다. 스프링은 개발자가 설정한 레벨에 따라 트랜잭션을 시작하고 중지합니다. 스프링은 `TransactionManager:getTransaction()`을 호출하여 전파레벨에 따라 트랜잭션을 가져오거나 만듭니다. 이는 Transaction Manager의 모든 유형의 전파레벨중 일부를 지원하지만, 특정한 구현체에서만 지원되는 전파레벨도 일부 있습니다.  
 
@@ -112,7 +112,7 @@ public class TransactionPropagationTest {
 
 부모 메소드에서 자식 메소드를 호출하고 자식 메소드는 에러를 throw 하는 코드입니다. `transactionChildService.insert()` 를 try - catch 구문으로 감쌌기때문에 문제없는 코드라고 생각이 들 수도 있지만 막상 테스트 결과를 보면 `Transaction silently rolled back because it has been marked as rollback-only` 라는 에러를 던지고 테스트가 종료됩니다.  
 
-`REQUIRED`의 핵심은 모든 트랜잭션이 하나로 연결되는 것이므로 모든 로직이 정상적으로 통과 되더라도 트랜잭션이 끝나는 시점에는 롤백이 되는 것입니다. 자세한 이유는 [이 포스트](https://keencho.github.io/posts/transaction-rollback/){:target="\_blank"}를 통해 확인해 보세요.  
+`REQUIRED`의 핵심은 모든 트랜잭션이 하나로 연결되는 것이므로 모든 로직이 정상적으로 통과 되더라도 트랜잭션이 끝나는 시점에는 롤백이 되는 것입니다. 자세한 이유는 [이 포스트](https://blog.keencho.com/posts/transaction-rollback/){:target="\_blank"}를 통해 확인해 보세요.  
 
 ### 2. SUPPORTS  
 두번째는 `SUPPORTS` 전파레벨 입니다. 활성화된 트랜잭션이 있다면 그것을 사용하고, 만약 없다면 트랜잭션 없이 메소드가 수행됩니다.  

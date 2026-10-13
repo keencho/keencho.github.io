@@ -13,7 +13,7 @@ aws 콘솔 보다가 이런걸 발견했다.
 궁금해서 찾아보니까 [이런 글](https://aws.amazon.com/ko/about-aws/whats-new/2025/03/application-load-balancer-integration-vpc-ipam/)을 확인할 수 있었다. (~~마참내!~~)
 ![1](/assets/img/custom/aws-alb-static-ip-2025/1.jpg)
 
-ALB에 [고정IP를 사용하려고](https://keencho.github.io/posts/aws-alb-static-ip/) 앞에 NLB 붙이기, 프록시 서버 사용하기, Global Accelerator과 통합하기, Lambda 사용하기 등 다양한 방법들을 사용해왔다. 그런데 이제 ALB에 직접적으로 고정 IP를 사용할 수 있게 된 것이다.
+ALB에 [고정IP를 사용하려고](https://blog.keencho.com/posts/aws-alb-static-ip/) 앞에 NLB 붙이기, 프록시 서버 사용하기, Global Accelerator과 통합하기, Lambda 사용하기 등 다양한 방법들을 사용해왔다. 그런데 이제 ALB에 직접적으로 고정 IP를 사용할 수 있게 된 것이다.
 
 ## **VPC IPAM이란?**
 Amazon VPC IP Address Manager(IPAM)는 AWS 워크로드의 IP 주소를 보다 쉽게 계획, 추적 및 모니터링할 수 있게 해주는 VPC 기능이다. IPAM을 사용하면 조직, 계정, VPC 및 AWS 리전 전체에서 IP 주소 배정을 중앙에서 관리하고 감사할 수 있다.
@@ -55,6 +55,6 @@ CIDR 넷마스크 길이는 ALB의 가용 영역 갯수에 따라 선택하면 �
 ![7](/assets/img/custom/aws-alb-static-ip-2025/7.JPG)
 
 ## **결론**
-ALB와 IPAM의 통합을 통해 ALB에 고정 IP를 사용할 수 있게 되었다. 당연한 이야기겠지만 [이런 아키텍처](https://keencho.github.io/posts/aws-fargate-dynamic-operation/#%ED%98%84%EC%9E%AC-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)를 사용한다면 CloudFront에 고정 IP를 사용한것이 아니기 때문에 무용지물이다. (물론 이 경우 [Anycast 고정 IP](https://aws.amazon.com/ko/about-aws/whats-new/2024/11/amazon-cloudfront-anycast-static-ips/) 를 사용하면 된다.)
+ALB와 IPAM의 통합을 통해 ALB에 고정 IP를 사용할 수 있게 되었다. 당연한 이야기겠지만 [이런 아키텍처](https://blog.keencho.com/posts/aws-fargate-dynamic-operation/#%ED%98%84%EC%9E%AC-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)를 사용한다면 CloudFront에 고정 IP를 사용한것이 아니기 때문에 무용지물이다. (물론 이 경우 [Anycast 고정 IP](https://aws.amazon.com/ko/about-aws/whats-new/2024/11/amazon-cloudfront-anycast-static-ips/) 를 사용하면 된다.)
 
 API 서비스 제공자라면 고객의 방화벽 설정을 위해 IPv4 주소를 요구하는 경우가 있다. `저희가 API를 사용하려는데, 방화벽 시스템 때문에 IP 등록이 필요합니다. DNS가 아닌 IPv4 주소를 알려주실 수 있을까요?` 와 같은 요청이 빈번하게 발생하기 때문이다. 이때 위 기능이 도움이 될 것이다.

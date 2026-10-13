@@ -18,7 +18,7 @@ tags: [AWS, ECS]
 # **Terraform으로 AWS ECS 무중단 배포 인프라 구성하기 - 3. 네트워크**
 이번 포스팅부터 본격적으로 AWS 리소스를 생성한다. 그 첫번째로 인프라 구성에 가장 기본이 되는 네트워크 관련 리소스(vpc, subnet 등...)부터 생성한다.
 
-이 글에선 vpc, subnet등이 무엇인지 설명하진 않는다. [이 시리즈](https://keencho.github.io/posts/aws-cicd-1/) 를 따라가다 보면 개념들을 확인할 수 있으니 모르시는 분들은 읽어보시기 바란다.
+이 글에선 vpc, subnet등이 무엇인지 설명하진 않는다. [이 시리즈](https://blog.keencho.com/posts/aws-cicd-1/) 를 따라가다 보면 개념들을 확인할 수 있으니 모르시는 분들은 읽어보시기 바란다.
 
 시작하기전 기초 코드를 작성한다.
 

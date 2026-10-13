@@ -20,7 +20,7 @@ tags: [AWS, ECS]
 
 AWS Web Console로도 인프라 구성이 가능히지만 코드를 사용해 인프라를 관리하기 위해 IaC중 하나인 [Terraform](https://www.terraform.io/) 을 사용한다. Terraform이 무엇인지는 자세하게 설명하진 않겠으나 필요시 간단하게 짚고 넘어가도록 한다.
 
-[이 시리즈](https://keencho.github.io/posts/aws-cicd-1/) 와는 다르게 테스트 환경 구축, 운영 환경의 경우 ECS Fargate 사용, Terraform 사용, CloudFront 사용 등 실제 서비스에 적용할 수 있도록 구성해볼 것이다.
+[이 시리즈](https://blog.keencho.com/posts/aws-cicd-1/) 와는 다르게 테스트 환경 구축, 운영 환경의 경우 ECS Fargate 사용, Terraform 사용, CloudFront 사용 등 실제 서비스에 적용할 수 있도록 구성해볼 것이다.
 
 ## **인프라 구성**
 구성할 인프라를 간단하게 설명하면 다음과 같다. 도메인은 내가 보유중인 keencho.com 도메인을 사용한다.

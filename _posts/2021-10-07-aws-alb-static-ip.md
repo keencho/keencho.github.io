@@ -74,7 +74,7 @@ if ($request_method = 'OPTIONS') {
 ## **NLB 에서 ALB 바로 바라보게 하기 (새로운 방법)**  
 그러던 와중에 2021년 9월 27일에 AWS 사이트에 NLB에서 ALB로의 직접 트래픽 전달을 지원한다는 글이 올라왔습니다. [(링크)](https://aws.amazon.com/ko/about-aws/whats-new/2021/09/application-load-balancer-aws-privatelink-static-ip-addresses-network-load-balancer/) 설정하기가 쉽고 여러가지 이점이 있기 때문에 때문에 Proxy Server를 없애고 `NLB`가 `ALB`를 바라볼수 있게끔 인프라 구성을 변경하기로 결정하였습니다.  
 
-로드밸런서로 ALB를 사용하고 있다는 전제하에 새로운 방식을 소개해 드리도록 하겠습니다. 만약 사용하고 계시지 않다면 [여기](https://keencho.github.io/posts/aws-cicd-4/)를 참고하셔서 ALB를 만들어 보세요.
+로드밸런서로 ALB를 사용하고 있다는 전제하에 새로운 방식을 소개해 드리도록 하겠습니다. 만약 사용하고 계시지 않다면 [여기](https://blog.keencho.com/posts/aws-cicd-4/)를 참고하셔서 ALB를 만들어 보세요.
 
 ### **타겟그룹 생성하기**
 첫번째로 타겟그룹을 생성하겠습니다. AWS 콘솔에 접속하셔서 `Create target group`을 눌러주세요.
